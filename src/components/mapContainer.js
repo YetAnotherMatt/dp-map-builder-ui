@@ -4,15 +4,14 @@ import PropTypes from 'prop-types';
 // import Grid from './grid';
 import MetaData from './metaData';
 import Previewer from './previewer';
-
-import FileSaver from 'file-saver';
+// import FileSaver from 'file-saver';
 import DataService from '../utility/dataService';
 
 
 const defaultRendererUri = 'http://localhost:23300';
 
-const ignore_first_row = true;
-const ignore_first_column = true;
+// const ignore_first_row = true;
+// const ignore_first_column = true;
 
 class MapContainer extends Component {
 
@@ -51,7 +50,9 @@ class MapContainer extends Component {
             rawTopoJsonData:{}, // 
             analyzeRenderResponse:{}, // response from analyzerequest
             analyzeRenderMessages:[],
-            currentActiveTab:'metaData'
+            colBreaks:[],
+            currentActiveTab:'metaData',
+            selectedColBreaks:-1,
         };
         
 
@@ -59,16 +60,12 @@ class MapContainer extends Component {
         this.setMetaDataCallbk = this.setMetaData.bind(this);
         this.setMetaDataHide = this.setMetaDataHide.bind(this);
         this.changeview = this.changeView.bind(this);
-        //this.previewPostData = this.processHandsontableData.bind(this);
-        //this.updateUserTableData = this.updateTableJsonOutput.bind(this);
-       
+        
         this.setDataDirty = this.setDataDirty.bind(this);
 
-        //this.onPreviewGrid = this.onPreviewGrid.bind(this);
         this.onAnalyze = this.onAnalyze.bind(this);
 
         this.onBackFromPreview = this.onBackFromPreview.bind(this);
-        //this.saveGrid = this.saveGrid.bind(this);
         this.cancel = this.cancel.bind(this);
         this.onError = this.onError.bind(this);    
     }
@@ -86,7 +83,7 @@ class MapContainer extends Component {
 
 
     onBackFromPreview() {
-        this.rebuildGrid(this.state.parsedData.render_json);
+        //this.rebuildGrid(this.state.parsedData.render_json);
         this.changeView('editTable');
     }
 
@@ -99,9 +96,6 @@ class MapContainer extends Component {
             metaNotes: this.getFootNotes(rebuildData.footnotes),
             metaSource:rebuildData.source,
             metaSizeunits: rebuildData.cell_size_units || 'auto',
-            metaHeadercols:  this.getHeaderColumnCount(rebuildData) || 0,
-            metaHeaderrows: this.getHeaderRowCount(rebuildData) || 0,
-            filename: rebuildData.filename
         })
 
      
@@ -131,32 +125,6 @@ class MapContainer extends Component {
         this.setState({metaFormHide:!this.state.metaFormHide})
     }
    
-
-    // saveGrid() {
-    //     if (this.state.isDirty) {
-    //         // call parse endpoint first then save
-    //         const prom = this.postPreviewData(this.processHandsontableData());
-    //         prom.then((previewData) => { 
-    //             let renderJson = this.state.parsedData.render_json;
-    //             if (this.props.onSave) {
-    //                 this.props.onSave(renderJson);
-    //             }
-    //         });
-           
-    //     }
-
-    //     else
-    //     {
-    //         // save without calling parse endpoint first
-    //         let renderJson = this.state.parsedData.render_json;
-    //         if (this.props.onSave && renderJson!=null) {
-    //             this.props.onSave(renderJson);
-    //         }
-    //     }
-
-    //     this.setState({statusMessage:"saved"})
-    // }
-
 
 
     cancel() {
@@ -200,7 +168,6 @@ class MapContainer extends Component {
     // gets actual TopoJson object data from state based on selection of boundary type
     getTopoJsonObject() {    
         const result = this.state.topoJson.filter(boundaryObj => boundaryObj.name ===this.state.selectTopoJson);
-        //this.getRawTopoJsonData(result[0].download_url);
         return result[0].download_url;
     }
 
@@ -233,7 +200,11 @@ class MapContainer extends Component {
         // this.setState({;
             console.log('yoo');
             console.log(result)
-            this.setState({"analyzeRenderResponse":result, analyzeRenderMessages: result.messages})           
+            this.setState({
+                "analyzeRenderResponse":result, 
+                analyzeRenderMessages: result.messages,
+                colBreaks: result.breaks
+            })           
         })
             .catch((e)=> {
                 console.log('xxxxxxxgetRawTopoJsonData error',e);
@@ -311,6 +282,8 @@ class MapContainer extends Component {
                         topoJson ={this.state.topoJson}
                         selectedBoundary={this.state.selectedBoundary}
                         currentActiveTab = {this.state.currentActiveTab}
+                        colBreaks = {this.state.colBreaks}
+                        selectedColBreaks = {this.state.selectedColBreaks}
 
                     />
                     <div className="grid"> 

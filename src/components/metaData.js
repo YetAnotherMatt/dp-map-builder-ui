@@ -11,13 +11,13 @@ class MetaData extends Component {
     constructor(props) {
         super(props);
         this.state = { 
-            //currentActiveTab:'metaData',
-            // file:{},
-            //boundaryData:[],
             csvKeyData:[],
             expandNotes: false,
-            notesFocusflag:false};
+            notesFocusflag:false,
+            rgbBreakVals:[]
+        };
         this.getMetaContent = this.getMetaContent.bind(this);
+        this.setColBreakRGBVals = this.setColBreakRGBVals.bind(this);
         this.onExpandNotes = this.onExpandNotes.bind(this);
         this.onFileSelect = this.onFileSelect.bind(this);
         this.onChangeTab = this.onChangeTab.bind(this);
@@ -27,7 +27,6 @@ class MetaData extends Component {
 
 
     componentWillMount() {
-
         this.getTopoJsonBoundaryList(topoJsonBoundariesUri);
     }
 
@@ -63,13 +62,27 @@ class MetaData extends Component {
     }
 
 
+
+    // stores the break rgb vals in parent state
+    setColBreakRGBVals(event) {
+        console.log('in setcolbreaks')
+        const index = event.target.dataset.tag
+        const colbreak = event.target.dataset.colbreak;
+        const rgbVal = event.target.value
+
+        const rgbObj = {"index": index, "colbreak": colbreak, "rgb": rgbVal};
+        var arrayvar = this.state.rgbBreakVals.slice()
+        arrayvar.push(rgbObj)
+        this.setState({rgbBreakVals: arrayvar })
+        console.log(this.state.rgbBreakVals);
+    }
+
+
     onExpandNotes() {
-       
         this.setState({
             expandNotes:!this.state.expandNotes,
             notesFocusflag:!this.state.expandNotes
         });
-
     }
 
 
@@ -85,7 +98,6 @@ class MetaData extends Component {
                 const dataContents = reader.result;
                 const firstLine = this.getColHeadersFromCSV(dataContents);
                 this.props.setMetaData({"csv":dataContents});
-
             };
             reader.readAsText(fls);
         }
@@ -142,9 +154,16 @@ class MetaData extends Component {
         const metaContainerClass = `metaContainer ${metaContainerVisibility}`
         const expanderClass = `expandCollapse ${metaFormCls}`;
         
+        const breakIdx = this.props.selectedColBreaks || -1;
+        //console.log(breakIdx);
+        //console.log(this.props.selectedColBreaks);
+        let colBreaks=-1;
+        if (breakIdx>-1)
+            colBreaks = this.props.colBreaks[breakIdx] 
+        else
+            colBreaks = [];
 
-       
-  
+
 
         return (
 
@@ -282,11 +301,37 @@ class MetaData extends Component {
 
 
                     <div id='metaTheme-panel' className={this.props.currentActiveTab==='themeData' ? 'show': 'hide'}>
-                        <div className="title">
-                            <label>Title:</label>
-                            <input value={this.props.metaTitle} id='metaTitle' onChange={this.getMetaContent} />
+                       
+                       
+                        <div className="select-wrap">
+                            <select id="selectedColBreaks" value={this.props.selectedColBreak} onChange={this.getMetaContent}>
+                                <option key="-1" value="-1">select</option>
+                                {
+                                    this.props.colBreaks.map(function(b,index) {
+                                        return <option key={index}
+                                            value={index}>{b.length}</option>;
+                                    })
+                                }
+
+                            </select>
+
+                        </div>     
+                       
+                        <div className="title">  
+                           
+                            {
+                                colBreaks.map((b,index)=> {
+                                    return(
+                                        <div key={index}>
+                                            <input readOnly value={b} className="smltxt"  id='metaTitle'  />&nbsp;
+                                            <input data-tag={index} data-colbreak={b} key={index} onChange={this.setColBreakRGBVals} className="smltxt"  id='breakRGB' on />
+                                        </div>)
+                                })
+                            }
+                           
                         </div>
 
+                        
 
                     </div>
 
