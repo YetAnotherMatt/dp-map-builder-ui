@@ -70,6 +70,15 @@ export default class DataService {
 
     
 
+    //analyze endpoint
+    static analyzeMapRender(body,uri) {
+        return http.post(uri,body,true,false,responseJson)
+            .then(response => {
+                return response;
+            })
+    }
+
+
     // static create(body) {
     //     return http.post(`/zebedee/collection`, body)
     //         .then(response => {

@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import DataService from '../utility/dataService';
-// import ReactUploadFile from 'react-upload-file';
 import FileUpload from './FileUpload';
 
 
@@ -12,7 +11,7 @@ class MetaData extends Component {
     constructor(props) {
         super(props);
         this.state = { 
-            currentActiveTab:'metaData',
+            //currentActiveTab:'metaData',
             // file:{},
             //boundaryData:[],
             csvKeyData:[],
@@ -41,13 +40,26 @@ class MetaData extends Component {
 
 
     getMetaContent(event) {
+        
         const key = event.target.id
         const val = event.target.value
-        var obj = {}
+        const obj = {}
         obj[key] = val;
         obj["isDirty"]=true;
-        console.log(obj);
         this.props.setMetaData(obj);
+
+
+        //we need both val and text props for selected option
+        //id_index, value_index
+        if (key==="metaCsvkeysId" || key==="metaCsvkeysVal")
+        {
+            const index = event.nativeEvent.target.selectedIndex;
+            const txt =  event.nativeEvent.target[index].text;
+            const newKey=key+'txt';
+            let newObj={};
+            newObj[newKey]=txt;
+            this.props.setMetaData(newObj);
+        }
     }
 
 
@@ -65,17 +77,14 @@ class MetaData extends Component {
     onFileSelect(e) {
         const fls = e.target.files[0];
         if (fls) {
-            console.log(fls);
-            //this.setState({file:fls})
+            //console.log(fls);
             this.props.setMetaData({"file":fls.name});
             const reader = new FileReader();
-            console.log(reader);
+            
             reader.onload = ()=>{
                 const dataContents = reader.result;
                 const firstLine = this.getColHeadersFromCSV(dataContents);
                 this.props.setMetaData({"csv":dataContents});
-               
-            //console.log(firstLine);
 
             };
             reader.readAsText(fls);
@@ -87,7 +96,9 @@ class MetaData extends Component {
 
     onChangeTab(e) {
         const tab = e.target.id;
-        this.setState({currentActiveTab:tab});
+        //this.setState({currentActiveTab:tab});
+        this.props.setMetaData({"currentActiveTab":tab});
+
     }
 
     getColHeadersFromCSV(data) {
@@ -141,41 +152,37 @@ class MetaData extends Component {
            
 
             <div className={metaContainerClass} >
-
                 <div className={expanderClass}> <a onClick={this.props.setMetaDataHide} href='#'>{this.props.formHide === true? ">": "<"}</a></div>
-              
                 <div id="tbNotesContainer" className={tbNotesContainerCls}>
                     <label >Notes:  <a onClick={this.onExpandNotes} href='#'>collapse</a></label>
                     <textarea  ref={(textarea) => { this.metaNotesRef = textarea; }}  value={this.props.metaNotes} id='metaNotes'   onChange={this.getMetaContent} /> 
                 </div>
 
 
-               
 
 
                 <div id="tbMetaForm" className={metaFormCls}>
-
                     <div className="tab--background">
                         <nav className="tabs--js">
                             <ul className="list--neutral flush">
                                 <li className="tab__item width-sm--6">
-                                    <a id="metaData" href="#" onClick={this.onChangeTab} className= {this.state.currentActiveTab==='metaData' ? ' tab__link tab__link--active': 'tab__link'}>Metadata</a>
+                                    <a id="metaData" href="#" onClick={this.onChangeTab} className= {this.props.currentActiveTab==='metaData' ? ' tab__link tab__link--active': 'tab__link'}>Metadata</a>
                                 </li>
                                 <li className="tab__item width-sm--6">
-                                    <a id="uploadData" href="#" onClick={this.onChangeTab} className= {this.state.currentActiveTab==='uploadData' ? ' tab__link tab__link--active': 'tab__link'}>Data</a>
+                                    <a id="uploadData" href="#" onClick={this.onChangeTab} className= {this.props.currentActiveTab==='uploadData' ? ' tab__link tab__link--active': 'tab__link'}>Data</a>
                                 </li>
                                 <li className="tab__item width-sm--6">
-                                    <a id="themeData" href="#" onClick={this.onChangeTab} className= {this.state.currentActiveTab==='themeData' ? ' tab__link tab__link--active': 'tab__link'}>Color Theme</a>
+                                    <a id="themeData" href="#" onClick={this.onChangeTab} className= {this.props.currentActiveTab==='themeData' ? ' tab__link tab__link--active': 'tab__link'}>Color Theme</a>
                                 </li>
                                 <li className="tab__item width-sm--6">
-                                    <a id="otherData" href="#" onClick={this.onChangeTab} className= {this.state.currentActiveTab==='otherData' ? ' tab__link tab__link--active': 'tab__link'}>Other</a>
+                                    <a id="otherData" href="#" onClick={this.onChangeTab} className= {this.props.currentActiveTab==='otherData' ? ' tab__link tab__link--active': 'tab__link'}>Other</a>
                                 </li>
                           
                             </ul>
                         </nav>
                     </div>
               
-                    <div id='metadata-panel' className={this.state.currentActiveTab==='metaData' ? 'show': 'hide'}>
+                    <div id='metadata-panel' className={this.props.currentActiveTab==='metaData' ? 'show': 'hide'}>
                         <div className="title">
                             <label>Title:</label>
                             <input value={this.props.metaTitle} id='metaTitle' onChange={this.getMetaContent} />
@@ -214,7 +221,7 @@ class MetaData extends Component {
 
                  
                   
-                    <div  id='metaCsvData-panel' className={this.state.currentActiveTab==='uploadData' ? 'show': 'hide'} >
+                    <div  id='metaCsvData-panel' className={this.props.currentActiveTab==='uploadData' ? 'show': 'hide'} >
                         <div className="sizeUnits2">
                             <label title="select boundaries">TopoJSON Boundaries:</label>
                             <div className="select-wrap">
@@ -246,7 +253,7 @@ class MetaData extends Component {
                                         {
                                             this.state.csvKeyData.map(function(b,index) {
                                                 return <option key={index}
-                                                    value={b}>{b}</option>;
+                                                    value={index}>{b}</option>;
                                             })
                                         }
                                     </select>
@@ -262,13 +269,24 @@ class MetaData extends Component {
                                         {
                                             this.state.csvKeyData.map(function(b,index) {
                                                 return <option key={index}
-                                                    value={b}>{b}</option>;
+                                                    value={index}>{b}</option>;
                                             })
                                         }
                                     </select>                  
                                 </div>
                             </div>
                         </div>
+
+                    </div>
+
+
+
+                    <div id='metaTheme-panel' className={this.props.currentActiveTab==='themeData' ? 'show': 'hide'}>
+                        <div className="title">
+                            <label>Title:</label>
+                            <input value={this.props.metaTitle} id='metaTitle' onChange={this.getMetaContent} />
+                        </div>
+
 
                     </div>
 
