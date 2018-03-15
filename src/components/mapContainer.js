@@ -52,7 +52,8 @@ class MapContainer extends Component {
             analyzeRenderMessages:[],
             colBreaks:[],
             currentActiveTab:'metaData',
-            selectedColBreaks:-1,
+            selectedColBreaksIndex:-1,
+            best_fit_class_count:-1,
         };
         
 
@@ -197,23 +198,31 @@ class MapContainer extends Component {
         const uri = "http://localhost:23500/analyse";
         const prm = DataService.analyzeMapRender(anaData,uri);
         prm.then((result) => {   
-        // this.setState({;
-            console.log('yoo');
             console.log(result)
+           
             this.setState({
                 "analyzeRenderResponse":result, 
                 analyzeRenderMessages: result.messages,
-                colBreaks: result.breaks
-            })           
+                colBreaks: result.breaks,
+                best_fit_class_count: result.best_fit_class_count,
+                selectedColBreaksIndex:this.lookupBestFitArray(result.best_fit_class_count,result.breaks)
+            }) 
+                    
         })
             .catch((e)=> {
-                console.log('xxxxxxxgetRawTopoJsonData error',e);
+                console.log('getRawTopoJsonData error',e);
                 this.onError("No (or error) response from endpoint");
             })
     }
 
 
-  
+
+
+    lookupBestFitArray(bestFit,colBreaksArr) {
+        const rtnIndex = (colBreaksArr.findIndex(obj =>obj.length==bestFit));
+        return rtnIndex
+    }
+
 
 
     addFootNotes() {
@@ -283,7 +292,8 @@ class MapContainer extends Component {
                         selectedBoundary={this.state.selectedBoundary}
                         currentActiveTab = {this.state.currentActiveTab}
                         colBreaks = {this.state.colBreaks}
-                        selectedColBreaks = {this.state.selectedColBreaks}
+                        selectedColBreaksIndex = {this.state.selectedColBreaksIndex}
+                        best_fit_class_count = {this.state.best_fit_class_count}
 
                     />
                     <div className="grid"> 

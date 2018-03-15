@@ -14,7 +14,7 @@ class MetaData extends Component {
             csvKeyData:[],
             expandNotes: false,
             notesFocusflag:false,
-            rgbBreakVals:[]
+            rgbBreakVals:[{},{},{},{},{},{},{},{},{},{},{}]
         };
         this.getMetaContent = this.getMetaContent.bind(this);
         this.setColBreakRGBVals = this.setColBreakRGBVals.bind(this);
@@ -63,19 +63,30 @@ class MetaData extends Component {
 
 
 
+
+
     // stores the break rgb vals in parent state
     setColBreakRGBVals(event) {
         console.log('in setcolbreaks')
+        console.log(this.state.rgbBreakVals.length)
+
         const index = event.target.dataset.tag
         const colbreak = event.target.dataset.colbreak;
         const rgbVal = event.target.value
 
+        const breakIdx = this.props.selectedColBreaksIndex 
+        let colBreaks = this.getSelectedColBreaks(breakIdx);
+        //console.log('###', colBreaks.length)
+        
+
         const rgbObj = {"index": index, "colbreak": colbreak, "rgb": rgbVal};
-        var arrayvar = this.state.rgbBreakVals.slice()
-        arrayvar.push(rgbObj)
+        let arrayvar = this.state.rgbBreakVals.slice()
+        arrayvar[index]=rgbObj;
         this.setState({rgbBreakVals: arrayvar })
-        console.log(this.state.rgbBreakVals);
+      
     }
+
+
 
 
     onExpandNotes() {
@@ -139,7 +150,9 @@ class MetaData extends Component {
     }
 
 
-
+    getSelectedColBreaks(index) {
+        return this.props.colBreaks[index] || [] 
+    }
 
 
     render() {
@@ -154,21 +167,17 @@ class MetaData extends Component {
         const metaContainerClass = `metaContainer ${metaContainerVisibility}`
         const expanderClass = `expandCollapse ${metaFormCls}`;
         
-        const breakIdx = this.props.selectedColBreaks || -1;
-        //console.log(breakIdx);
-        //console.log(this.props.selectedColBreaks);
-        let colBreaks=-1;
-        if (breakIdx>-1)
-            colBreaks = this.props.colBreaks[breakIdx] 
-        else
-            colBreaks = [];
+        const breakIdx = this.props.selectedColBreaksIndex || -1;
 
+        // let colBreaks=-1;
+        // if (breakIdx>-1)
+        //     colBreaks = this.props.colBreaks[breakIdx] 
+        // else
+        //     colBreaks = [];
 
+        let colBreaks = this.getSelectedColBreaks(breakIdx);
 
         return (
-
-
-           
 
             <div className={metaContainerClass} >
                 <div className={expanderClass}> <a onClick={this.props.setMetaDataHide} href='#'>{this.props.formHide === true? ">": "<"}</a></div>
@@ -304,7 +313,7 @@ class MetaData extends Component {
                        
                        
                         <div className="select-wrap">
-                            <select id="selectedColBreaks" value={this.props.selectedColBreak} onChange={this.getMetaContent}>
+                            <select id="selectedColBreaksIndex" value={this.props.selectedColBreaksIndex} onChange={this.getMetaContent}>
                                 <option key="-1" value="-1">select</option>
                                 {
                                     this.props.colBreaks.map(function(b,index) {
