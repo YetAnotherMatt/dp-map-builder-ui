@@ -148,8 +148,6 @@ class MapContainer extends Component {
         console.log('preview map clicked');
         const prom =  this.submitToRequestRender(this.buildRequestJson());
         prom.then((previewData) => {   
-            // change to preview only if promise resolved
-            // this.changeView('preview');
             this.setDataDirty(false); 
         })
     }
@@ -262,7 +260,7 @@ class MapContainer extends Component {
                 colBreaks: result.breaks,
                 best_fit_class_count: result.best_fit_class_count,
                 selectedColBreaksIndex:this.lookupBestFitArray(result.best_fit_class_count,result.breaks),
-                currentActiveTab: 'themeData'
+                previewHtml:this.formatAnalyzeResponseMsg(result.messages)
             }) 
                     
         })
@@ -278,8 +276,6 @@ class MapContainer extends Component {
     submitToRequestRender(reqData) {
         return new Promise((resolve, reject) => {
         
-            console.log('@@submitting');
-            console.log(reqData)
             const uri = "http://localhost:23500/render/svg"
             const prm = DataService.requestMapRender(reqData,uri);
             prm.then((result) => {   
@@ -340,6 +336,13 @@ class MapContainer extends Component {
     }
     
 
+    formatAnalyzeResponseMsg(message) {
+        let responseMsg="";
+        message.map( (msgObj)=>{
+            responseMsg+=msgObj.level + "<br/>" + msgObj.text + "<br/>"
+        })
+        return responseMsg;
+    }
 
 
 
@@ -377,18 +380,13 @@ class MapContainer extends Component {
                     />
                     <div className="grid"> 
                         <Previewer previewHtml={this.state.previewHtml} />
-                        {
-                            this.state.analyzeRenderMessages.map(function(b,index) {
-                                return    <div id="analyzeMessages" key={index}><h3>{b.level}</h3> <span>{b.text}</span></div>
-                            })
-                        }
                     </div>
                 </div>;
         }
             
-        else {
-            viewComponent = <Previewer previewHtml={this.state.previewHtml} />
-        }
+        // else {
+        //     viewComponent = <Previewer previewHtml={this.state.previewHtml} />
+        // }
 
 
         return (
@@ -398,7 +396,6 @@ class MapContainer extends Component {
                     <div className="statusBtnsGroup">
                         <button className="btn--positive" onClick={this.saveGrid} >save</button>&nbsp;
                         <button onClick={this.cancel}>cancel</button> &nbsp;
-                       
                         <button className={this.state.currentActiveTab === 'uploadData'? "showBtn": "hideBtn"} onClick={this.onAnalyze}>analyse request</button> &nbsp;
                         <button className={this.state.currentActiveTab === 'themeData'? "showBtn": "hideBtn"} onClick={this.onPreviewMap}>preview map</button> &nbsp;
                         <button className={this.state.view === 'editTable'? "hideBtn": "showBtn"} onClick={this.onBackFromPreview}>back</button> &nbsp;
