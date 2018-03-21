@@ -61,7 +61,8 @@ class MapContainer extends Component {
             geography:{},
             colBrewerNames:colBrewerNames,
             colBrewerResource:colBrewer,
-            selectedColBrewer:''
+            selectedColBrewer:'',
+            rgbBreakVals:[]
         };
         
 
@@ -193,13 +194,7 @@ class MapContainer extends Component {
         renderObj.choropleth = {
             "reference_value": 13,
             "reference_value_text": "UK",
-            "breaks": [
-                {"lower_bound": 0, "color": "rgb(241, 238, 246)"},
-                {"lower_bound": 6, "color": "rgb(189, 201, 225)"},
-                {"lower_bound": 11, "color": "rgb(116, 169, 207)"},
-                {"lower_bound": 20, "color": "rgb(43, 140, 190)"},
-                {"lower_bound": 33, "color": "rgb(4, 90, 141)"}
-            ],
+            "breaks": this.state.rgbBreakVals,
             "missing_value_color": "LightGrey",
             "value_prefix": "",
             "value_suffix": "% non-UK born",
@@ -285,7 +280,7 @@ class MapContainer extends Component {
         
             console.log('@@submitting');
             console.log(reqData)
-            const uri = "http://localhost:23500/render/html"
+            const uri = "http://localhost:23500/render/svg"
             const prm = DataService.requestMapRender(reqData,uri);
             prm.then((result) => {   
                 console.log(result)
@@ -377,6 +372,7 @@ class MapContainer extends Component {
                         colBrewerNames = {this.state.colBrewerNames}
                         colBrewerResource = {this.state.colBrewerResource}
                         selectedColBrewer = {this.state.selectedColBrewer}
+                        rgbBreakVals = {this.state.rgbBreakVals}
 
                     />
                     <div className="grid"> 

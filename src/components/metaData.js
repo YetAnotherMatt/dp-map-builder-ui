@@ -14,7 +14,7 @@ class MetaData extends Component {
             csvKeyData:[],
             expandNotes: false,
             notesFocusflag:false,
-            rgbBreakVals:[]
+            //rgbBreakVals:[]
         };
         this.getMetaContent = this.getMetaContent.bind(this);
         // this.setColBreakRGBVals = this.setColBreakRGBVals.bind(this);
@@ -38,6 +38,7 @@ class MetaData extends Component {
             this.setState({notesFocusflag:false})
         }  
     }
+
 
 
     getMetaContent(event) {
@@ -87,6 +88,7 @@ class MetaData extends Component {
     // }
 
 
+    
 
     onSelectBreakChange(e) {
         this.getMetaContent(e);
@@ -116,10 +118,11 @@ class MetaData extends Component {
     populateRgbBreakVals(colBreaks,tempRGBObj) {
         let arrayvar = [];
         for (let i = 0; i < colBreaks.length; i++) { 
-            const rgbObj = {"index": i, "lower_bound": colBreaks[i], "color": tempRGBObj[i]};
+            const rgbObj = {"lower_bound": colBreaks[i], "color": tempRGBObj[i]};
             arrayvar[i]=rgbObj;
         }
-        this.setState({rgbBreakVals: arrayvar })
+        // this.setState({rgbBreakVals: arrayvar })
+        this.props.setMetaData({rgbBreakVals: arrayvar });
     }
 
 
@@ -205,7 +208,7 @@ class MetaData extends Component {
         const breakIdx = this.props.selectedColBreaksIndex || -1;
 
         let colBreaks = this.getSelectedColBreaks(breakIdx);
-        let rgbBreakVals = this.state.rgbBreakVals;
+        let rgbBreakVals = this.props.rgbBreakVals;
 
         return (
 
@@ -297,7 +300,7 @@ class MetaData extends Component {
                         </div>
 
                         <div className="source">
-                            <label >CSV select:{(this.state.csvKeyData).length}</label>
+                            <label >CSV select:</label>
                             <input type="file" accept=".csv" onChange={this.onFileSelect} /> <br />
             
                         </div>
