@@ -2,6 +2,7 @@ import http from './http';
 
 const responseJson = 'json';
 const responseBlob = 'blob';
+const responseText = 'text';
 
 export default class DataService {
 
@@ -78,6 +79,14 @@ export default class DataService {
             })
     }
 
+
+    //request endpoint
+    static requestMapRender(body,uri) {
+        return http.post(uri,body,true,false,responseText)
+            .then(response => {
+                return response;
+            })
+    }
 
     // static create(body) {
     //     return http.post(`/zebedee/collection`, body)

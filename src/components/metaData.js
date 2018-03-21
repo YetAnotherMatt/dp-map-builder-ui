@@ -14,17 +14,19 @@ class MetaData extends Component {
             csvKeyData:[],
             expandNotes: false,
             notesFocusflag:false,
-            rgbBreakVals:[{},{},{},{},{},{},{},{},{},{},{}]
+            rgbBreakVals:[]
         };
         this.getMetaContent = this.getMetaContent.bind(this);
-        this.setColBreakRGBVals = this.setColBreakRGBVals.bind(this);
+        // this.setColBreakRGBVals = this.setColBreakRGBVals.bind(this);
         this.onExpandNotes = this.onExpandNotes.bind(this);
         this.onFileSelect = this.onFileSelect.bind(this);
         this.onChangeTab = this.onChangeTab.bind(this);
+        this.onSelectColorBrewerChange = this.onSelectColorBrewerChange.bind(this);
+        this.onSelectBreakChange = this. onSelectBreakChange.bind(this);
     }
 
    
-
+    //{},{},{},{},{},{},{},{},{},{},{}
 
     componentWillMount() {
         this.getTopoJsonBoundaryList(topoJsonBoundariesUri);
@@ -66,26 +68,59 @@ class MetaData extends Component {
 
 
     // stores the break rgb vals in parent state
-    setColBreakRGBVals(event) {
-        console.log('in setcolbreaks')
-        console.log(this.state.rgbBreakVals.length)
+    // setColBreakRGBVals(event) {
+    //     console.log('in setcolbreaks')
+    //     console.log(this.state.rgbBreakVals.length)
 
-        const index = event.target.dataset.tag
-        const colbreak = event.target.dataset.colbreak;
-        const rgbVal = event.target.value
+    //     const index = event.target.dataset.tag
+    //     const colbreak = event.target.dataset.colbreak;
+    //     const rgbVal = event.target.value
 
-        const breakIdx = this.props.selectedColBreaksIndex 
-        let colBreaks = this.getSelectedColBreaks(breakIdx);
-        //console.log('###', colBreaks.length)
+    //     const breakIdx = this.props.selectedColBreaksIndex 
+    //     let colBreaks = this.getSelectedColBreaks(breakIdx);
+    //     //console.log('###', colBreaks.length)
         
+    //     const rgbObj = {"index": index, "colbreak": colbreak, "rgb": rgbVal};
+    //     let arrayvar = this.state.rgbBreakVals.slice()
+    //     arrayvar[index]=rgbObj;
+    //     this.setState({rgbBreakVals: arrayvar })
+    // }
 
-        const rgbObj = {"index": index, "colbreak": colbreak, "rgb": rgbVal};
-        let arrayvar = this.state.rgbBreakVals.slice()
-        arrayvar[index]=rgbObj;
-        this.setState({rgbBreakVals: arrayvar })
-      
+
+
+    onSelectBreakChange(e) {
+        this.getMetaContent(e);
+        const selectedColBrewer = this.props.selectedColBrewer;
+        let tempRGB = this.props.colBrewerResource[selectedColBrewer];
+        const breakIdx = e.target.value //this.props.selectedColBreaksIndex 
+        let colBreaks = this.getSelectedColBreaks(breakIdx);
+        const colBreakLength = colBreaks.length;
+        let tempRGBObj = tempRGB[colBreakLength.toString()];
+        this.populateRgbBreakVals(colBreaks,tempRGBObj)
     }
 
+
+    onSelectColorBrewerChange(e) {
+        this.getMetaContent(e);
+        let tempRGB = this.props.colBrewerResource[e.target.value];
+        const breakIdx = this.props.selectedColBreaksIndex 
+        let colBreaks = this.getSelectedColBreaks(breakIdx);
+        const colBreakLength = colBreaks.length;
+        let tempRGBObj = tempRGB[colBreakLength.toString()];        
+        this.populateRgbBreakVals(colBreaks,tempRGBObj)
+    }
+
+
+
+
+    populateRgbBreakVals(colBreaks,tempRGBObj) {
+        let arrayvar = [];
+        for (let i = 0; i < colBreaks.length; i++) { 
+            const rgbObj = {"index": i, "lower_bound": colBreaks[i], "color": tempRGBObj[i]};
+            arrayvar[i]=rgbObj;
+        }
+        this.setState({rgbBreakVals: arrayvar })
+    }
 
 
 
@@ -169,13 +204,8 @@ class MetaData extends Component {
         
         const breakIdx = this.props.selectedColBreaksIndex || -1;
 
-        // let colBreaks=-1;
-        // if (breakIdx>-1)
-        //     colBreaks = this.props.colBreaks[breakIdx] 
-        // else
-        //     colBreaks = [];
-
         let colBreaks = this.getSelectedColBreaks(breakIdx);
+        let rgbBreakVals = this.state.rgbBreakVals;
 
         return (
 
@@ -202,9 +232,9 @@ class MetaData extends Component {
                                 <li className="tab__item width-sm--6">
                                     <a id="themeData" href="#" onClick={this.onChangeTab} className= {this.props.currentActiveTab==='themeData' ? ' tab__link tab__link--active': 'tab__link'}>Color Theme</a>
                                 </li>
-                                <li className="tab__item width-sm--6">
+                                {/* <li className="tab__item width-sm--6">
                                     <a id="otherData" href="#" onClick={this.onChangeTab} className= {this.props.currentActiveTab==='otherData' ? ' tab__link tab__link--active': 'tab__link'}>Other</a>
-                                </li>
+                                </li> */}
                           
                             </ul>
                         </nav>
@@ -311,9 +341,9 @@ class MetaData extends Component {
 
                     <div id='metaTheme-panel' className={this.props.currentActiveTab==='themeData' ? 'show': 'hide'}>
                        
-                       
+                        <label>Breaks:</label>
                         <div className="select-wrap">
-                            <select id="selectedColBreaksIndex" value={this.props.selectedColBreaksIndex} onChange={this.getMetaContent}>
+                            <select id="selectedColBreaksIndex" value={this.props.selectedColBreaksIndex}  onChange={this.onSelectBreakChange}>
                                 <option key="-1" value="-1">select</option>
                                 {
                                     this.props.colBreaks.map(function(b,index) {
@@ -324,16 +354,35 @@ class MetaData extends Component {
 
                             </select>
 
+                        </div>   
+
+
+                        <label>Color:</label>
+                        <div className="select-wrap">
+                            <select id="selectedColBrewer" value={this.props.selectedColBrewer} onChange={this.onSelectColorBrewerChange}>
+                                <option key="-1" value="-1">select col</option>
+                                {
+                                    this.props.colBrewerNames.map(function(b,index) {
+                                        return <option key={index}
+                                            value={b}>{b}</option>;
+                                    })
+                                }
+
+                            </select>
+
                         </div>     
+
                        
                         <div className="title">  
                            
+                         
                             {
-                                colBreaks.map((b,index)=> {
+                                rgbBreakVals.map((b,index)=> {
+                                    let styles = {backgroundColor:`${b.color}`}
                                     return(
                                         <div key={index}>
-                                            <input readOnly value={b} className="smltxt"  id='metaTitle'  />&nbsp;
-                                            <input data-tag={index} data-colbreak={b} key={index} onChange={this.setColBreakRGBVals} className="smltxt"  id='breakRGB' on />
+                                            <input readOnly value={b.lower_bound} className="smltxt"  id='metaTitle'  />&nbsp;
+                                            <input  value={b.color} className="smltxt"  id='breakRGB' style={styles} />
                                         </div>)
                                 })
                             }

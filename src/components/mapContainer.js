@@ -1,17 +1,15 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-// import Grid from './grid';
 import MetaData from './metaData';
 import Previewer from './previewer';
-// import FileSaver from 'file-saver';
 import DataService from '../utility/dataService';
+import colBrewer from './data/colorBrewer.json';
 
 
 const defaultRendererUri = 'http://localhost:23300';
 
-// const ignore_first_row = true;
-// const ignore_first_column = true;
+
 
 class MapContainer extends Component {
 
@@ -29,6 +27,12 @@ class MapContainer extends Component {
         // props.onError holds the function that should be invoked in response to an error - pass in a message for the user
         // props.rendererUri holds the uri of the renderer
 
+        
+
+        let colBrewerNames = [];
+        for (var key in colBrewer) {
+            colBrewerNames.push(key)
+        }
 
         this.state = {
             view: 'editTable',
@@ -54,6 +58,10 @@ class MapContainer extends Component {
             currentActiveTab:'metaData',
             selectedColBreaksIndex:-1,
             best_fit_class_count:-1,
+            geography:{},
+            colBrewerNames:colBrewerNames,
+            colBrewerResource:colBrewer,
+            selectedColBrewer:''
         };
         
 
@@ -65,8 +73,8 @@ class MapContainer extends Component {
         this.setDataDirty = this.setDataDirty.bind(this);
 
         this.onAnalyze = this.onAnalyze.bind(this);
-
-        this.onBackFromPreview = this.onBackFromPreview.bind(this);
+        this.onPreviewMap = this.onPreviewMap.bind(this);
+        // this.onBackFromPreview = this.onBackFromPreview.bind(this);
         this.cancel = this.cancel.bind(this);
         this.onError = this.onError.bind(this);    
     }
@@ -83,10 +91,9 @@ class MapContainer extends Component {
 
 
 
-    onBackFromPreview() {
-        //this.rebuildGrid(this.state.parsedData.render_json);
-        this.changeView('editTable');
-    }
+    // onBackFromPreview() {
+    //     this.changeView('editTable');
+    // }
 
 
 
@@ -135,17 +142,73 @@ class MapContainer extends Component {
     }
 
 
-   
+
+    onPreviewMap() {
+        console.log('preview map clicked');
+        const prom =  this.submitToRequestRender(this.buildRequestJson());
+        prom.then((previewData) => {   
+            // change to preview only if promise resolved
+            // this.changeView('preview');
+            this.setDataDirty(false); 
+        })
+    }
+
+
 
     onAnalyze() {
-        console.log('click analyze called')
         const prom = this.getRawTopoJsonData(this.getTopoJsonObject());
         prom.then( ()=> {
             this.submitToAnalyzeRender(this.buildAnalyseJson());
         });
-        
     }
 
+
+    
+    // build json for request endpoint
+    buildRequestJson() {
+        let renderObj = {};
+
+        //get metatitle etc.
+        renderObj.title = this.state.metaTitle;
+        renderObj.subtitle = this.state.metaSubtitle;
+        renderObj.source = this.state.metaSource;
+        renderObj.source_link = this.state.metaSourceLink;
+        renderObj.width = 400;
+        renderObj.map_type = "choropleth";
+        renderObj.license = this.state.metaLicense
+        renderObj.filename="xxx";
+        renderObj.footnotes = this.addFootNotes();
+       
+
+        // geography
+        //renderObj.geography = this.state.geography;
+        renderObj.geography = {
+            "id_property":"AREACD",
+            "name_property":"AREANM",
+            "topojson":this.state.rawTopoJsonData
+        }
+
+        renderObj.data = this.state.analyzeRenderResponse.data;
+
+        renderObj.choropleth = {
+            "reference_value": 13,
+            "reference_value_text": "UK",
+            "breaks": [
+                {"lower_bound": 0, "color": "rgb(241, 238, 246)"},
+                {"lower_bound": 6, "color": "rgb(189, 201, 225)"},
+                {"lower_bound": 11, "color": "rgb(116, 169, 207)"},
+                {"lower_bound": 20, "color": "rgb(43, 140, 190)"},
+                {"lower_bound": 33, "color": "rgb(4, 90, 141)"}
+            ],
+            "missing_value_color": "LightGrey",
+            "value_prefix": "",
+            "value_suffix": "% non-UK born",
+            "horizontal_legend_position": "before",
+            "vertical_legend_position": "after"
+        }
+       
+        return renderObj;
+    }
 
     // build/ format Json  to analyze endpoint requirements
     buildAnalyseJson() {
@@ -154,7 +217,6 @@ class MapContainer extends Component {
             "id_property":this.state.metaCsvkeysIdtxt,
             "name_property":this.state.metaCsvkeysValtxt,
             "topojson":this.state.rawTopoJsonData
-          
         }
         
         analyseObj.csv = this.state.csv;
@@ -162,8 +224,11 @@ class MapContainer extends Component {
         analyseObj.value_index =parseInt(this.state.metaCsvkeysVal) || 0;
         analyseObj.has_header_row = true;
         console.log(analyseObj);
+        this.setState({geography:analyseObj.geography});
         return analyseObj;
     }
+
+
 
 
     // gets actual TopoJson object data from state based on selection of boundary type
@@ -172,9 +237,7 @@ class MapContainer extends Component {
         return result[0].download_url;
     }
 
-
-    
-    
+  
 
     // call the github endpoint stored in prop download_url
     getRawTopoJsonData(uri) {
@@ -192,20 +255,19 @@ class MapContainer extends Component {
         })
     }
 
-    
 
     submitToAnalyzeRender(anaData) {
         const uri = "http://localhost:23500/analyse";
         const prm = DataService.analyzeMapRender(anaData,uri);
         prm.then((result) => {   
             console.log(result)
-           
             this.setState({
                 "analyzeRenderResponse":result, 
                 analyzeRenderMessages: result.messages,
                 colBreaks: result.breaks,
                 best_fit_class_count: result.best_fit_class_count,
-                selectedColBreaksIndex:this.lookupBestFitArray(result.best_fit_class_count,result.breaks)
+                selectedColBreaksIndex:this.lookupBestFitArray(result.best_fit_class_count,result.breaks),
+                currentActiveTab: 'themeData'
             }) 
                     
         })
@@ -218,6 +280,33 @@ class MapContainer extends Component {
 
 
 
+    submitToRequestRender(reqData) {
+        return new Promise((resolve, reject) => {
+        
+            console.log('@@submitting');
+            console.log(reqData)
+            const uri = "http://localhost:23500/render/html"
+            const prm = DataService.requestMapRender(reqData,uri);
+            prm.then((result) => {   
+                console.log(result)
+                this.setState({
+                    previewHtml: result
+                })
+
+                resolve(result);
+                    
+            })
+                .catch((e)=> {
+                    console.log('request map render  error',e);
+                    this.onError("No (or error) response from endpoint");
+                })
+        });
+    }
+
+
+
+
+    // find object in colbreaks array based on the value of best fit from request
     lookupBestFitArray(bestFit,colBreaksArr) {
         const rtnIndex = (colBreaksArr.findIndex(obj =>obj.length==bestFit));
         return rtnIndex
@@ -262,16 +351,7 @@ class MapContainer extends Component {
     render() {
        
         let viewComponent= null;
-        // let messageList = null;
-
-        // if (this.state.currentActiveTab==='uploadData') {
-        //     this.state.analyzeRenderMessages.map(function(b,index) {
-        //         messageList+= <div id="analyzeMessages" key={index}><h3>{b.level}</h3> <span>{b.text}</span></div>
-        //     })
-        // }
-
-
-
+       
         if (this.state.view === 'editTable') {
             viewComponent = 
                 <div>
@@ -294,9 +374,13 @@ class MapContainer extends Component {
                         colBreaks = {this.state.colBreaks}
                         selectedColBreaksIndex = {this.state.selectedColBreaksIndex}
                         best_fit_class_count = {this.state.best_fit_class_count}
+                        colBrewerNames = {this.state.colBrewerNames}
+                        colBrewerResource = {this.state.colBrewerResource}
+                        selectedColBrewer = {this.state.selectedColBrewer}
 
                     />
                     <div className="grid"> 
+                        <Previewer previewHtml={this.state.previewHtml} />
                         {
                             this.state.analyzeRenderMessages.map(function(b,index) {
                                 return    <div id="analyzeMessages" key={index}><h3>{b.level}</h3> <span>{b.text}</span></div>
@@ -318,11 +402,12 @@ class MapContainer extends Component {
                     <div className="statusBtnsGroup">
                         <button className="btn--positive" onClick={this.saveGrid} >save</button>&nbsp;
                         <button onClick={this.cancel}>cancel</button> &nbsp;
-                        <button className={this.state.view === 'editTable'? "showBtn": "hideBtn"} onClick={this.onPreviewGrid}>preview map</button> &nbsp;
-                        <button className={this.state.view === 'editTable'? "showBtn": "hideBtn"} onClick={this.onAnalyze}>analyse request</button> &nbsp;
+                       
+                        <button className={this.state.currentActiveTab === 'uploadData'? "showBtn": "hideBtn"} onClick={this.onAnalyze}>analyse request</button> &nbsp;
+                        <button className={this.state.currentActiveTab === 'themeData'? "showBtn": "hideBtn"} onClick={this.onPreviewMap}>preview map</button> &nbsp;
                         <button className={this.state.view === 'editTable'? "hideBtn": "showBtn"} onClick={this.onBackFromPreview}>back</button> &nbsp;
                        
-                    </div><div className="rowColStatus">{this.state.statusMessage}&nbsp;</div>
+                    </div>
                 </div>
             </div>
         );

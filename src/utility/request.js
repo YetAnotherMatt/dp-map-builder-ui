@@ -3,7 +3,19 @@
 // import uuid from 'uuid/v4';
 // import user from '../api-clients/user';
 // import notifications from '../notifications';
-import "babel-polyfill"
+
+
+//import "babel-polyfill"
+// let global;
+// if (!global._babelPolyfill) {
+//     require('babel-polyfill');
+// }
+let global;
+if ((typeof window !== 'undefined' && !window['_babelPolyfill']) ||
+ (typeof global !== 'undefined' && !global['_babelPolyfill'])) {
+    require('babel-polyfill');
+}
+
 
 
 
@@ -109,6 +121,9 @@ export default function request(method, URI, willRetry = true, onRetry, body, ca
                     let responseType;
                     if (responseFormat == 'blob') {
                         responseType = await response.blob();
+                    }
+                    else if (responseFormat == 'text') {
+                        responseType = await response.text();
                     }
                     else { responseType = await response.json(); }
 

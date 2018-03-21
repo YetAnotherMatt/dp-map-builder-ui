@@ -1,17 +1,7 @@
-// import GridContainer from './components/gridContainer';
-
-// import  "./assets/scss/main.scss";
-
-// export default GridContainer;
-
-
-
-
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 // import './index.css';
-import GridContainer from './components/gridContainer';
+import MapContainer from './components/mapContainer';
 
 
 
@@ -32,7 +22,7 @@ function onCancel() {
 
 ReactDOM.render(
     <div id="example-component">
-        <GridContainer onCancel={onCancel} onSave={onSave} onError={onError} data={{}} />
+        <MapContainer onCancel={onCancel} onSave={onSave} onError={onError} data={{}} />
     </div>, 
     document.getElementById('app'));
 
