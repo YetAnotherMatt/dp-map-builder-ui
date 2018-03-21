@@ -337,11 +337,11 @@ class MapContainer extends Component {
     
 
     formatAnalyzeResponseMsg(message) {
-        let responseMsg="";
+        let formattedMsg="";
         message.map( (msgObj)=>{
-            responseMsg+=msgObj.level + "<br/>" + msgObj.text + "<br/>"
+            formattedMsg+=msgObj.level + "<br/>" + msgObj.text + "<br/>"
         })
-        return responseMsg;
+        return formattedMsg;
     }
 
 
