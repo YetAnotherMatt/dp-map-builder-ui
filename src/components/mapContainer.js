@@ -21,8 +21,8 @@ class MapContainer extends Component {
     constructor(props) {
         super(props);
 
-        // props.data holds the json used to define the table.
-        // props.onSave holds the function that should be invoked to save the json
+        // props.data holds the json used to define the map.
+        // props.onSave holds the function that should be invoked to save the json and csv file
         // props.onCancel holds the function that should be invoked if the cancel button is clicked
         // props.onError holds the function that should be invoked in response to an error - pass in a message for the user
         // props.rendererUri holds the uri of the renderer
@@ -78,6 +78,7 @@ class MapContainer extends Component {
         // this.onBackFromPreview = this.onBackFromPreview.bind(this);
         this.cancel = this.cancel.bind(this);
         this.onError = this.onError.bind(this);    
+        this.onSave = this.onSave.bind(this);    
     }
 
 
@@ -135,10 +136,15 @@ class MapContainer extends Component {
     }
    
 
-
     cancel() {
         if (this.props.onCancel) {
             this.props.onCancel();
+        }
+    }
+
+    onSave() {
+        if (this.props.onSave) {
+            this.props.onSave(this.buildRequestJson(), this.state.csv);
         }
     }
 
@@ -175,7 +181,6 @@ class MapContainer extends Component {
         renderObj.width = 400;
         renderObj.map_type = "choropleth";
         renderObj.license = this.state.metaLicense
-        renderObj.filename="xxx";
         renderObj.footnotes = this.addFootNotes();
        
 
@@ -394,7 +399,7 @@ class MapContainer extends Component {
                 {viewComponent}
                 <div className="statusBar">
                     <div className="statusBtnsGroup">
-                        <button className="btn--positive" onClick={this.saveGrid} >save</button>&nbsp;
+                        <button className="btn--positive" onClick={this.onSave} >save</button>&nbsp;
                         <button onClick={this.cancel}>cancel</button> &nbsp;
                         <button className={this.state.currentActiveTab === 'uploadData'? "showBtn": "hideBtn"} onClick={this.onAnalyze}>analyse request</button> &nbsp;
                         <button className={this.state.currentActiveTab === 'themeData'? "showBtn": "hideBtn"} onClick={this.onPreviewMap}>preview map</button> &nbsp;
