@@ -139,7 +139,8 @@ class MetaData extends Component {
             const reader = new FileReader();
             reader.onload = ()=>{
                 const dataContents = reader.result;
-                //const firstLine = this.getColHeadersFromCSV(dataContents);
+                //const firstLine = 
+                this.getColHeadersFromCSV(dataContents);
                 this.props.setMetaData({"csv":dataContents});
             };
             reader.readAsText(fls);
@@ -161,7 +162,7 @@ class MetaData extends Component {
         let colHeaders = firstLine.split(',');
         //this.setState({csvKeyData:colHeaders})
         this.props.setMetaData({"csvKeyData":colHeaders});
-        return colHeaders
+        //return colHeaders
     }
 
 
