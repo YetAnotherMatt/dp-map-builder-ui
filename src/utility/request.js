@@ -87,12 +87,12 @@ export default function request(method, URI, willRetry = true, onRetry, body, ca
 
                 // To save doing this exact same function throughout the app we handle a 401 
                 // here (ie at the lowest level possible)
-                const notification = {
-                    type: "neutral",
-                    message: "Your session has expired so you've been redirected to the login screen",
-                    isDismissable: true,
-                    autoDismiss: 20000
-                }
+                // const notification = {
+                //     type: "neutral",
+                //     message: "Your session has expired so you've been redirected to the login screen",
+                //     isDismissable: true,
+                //     autoDismiss: 20000
+                // }
                 //  user.logOut();
                 //  notifications.add(notification);
                 reject({ status: response.status, message: response.statusText });

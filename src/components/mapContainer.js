@@ -48,7 +48,7 @@ class MapContainer extends Component {
             metaNotes: '',
             metaNotesExp: '',
             metaLicence:'',
-            metaMawidth:'',
+            metaMapwidth:400,
             isDirty:false,
             metaFormHide:false,
             file:{},
@@ -127,8 +127,8 @@ class MapContainer extends Component {
 
 
     populateMetaFormState(rebuildData){
-        console.log('in populateMetaForm')
-        console.log(rebuildData)
+        //console.log('in populateMetaForm')
+        //console.log(rebuildData)
         this.setState({
             metaTitle:rebuildData.requestJson.title,
             metaSubtitle:rebuildData.requestJson.subtitle,
@@ -311,7 +311,7 @@ class MapContainer extends Component {
         analyseObj.id_index =  parseInt(this.state.metaCsvKeysId) || 0;
         analyseObj.value_index =parseInt(this.state.metaCsvKeysVal) || 0;
         analyseObj.has_header_row = true;
-        console.log(analyseObj);
+        //console.log(analyseObj);
         this.setState({geography:analyseObj.geography});
         return analyseObj;
     }
@@ -351,7 +351,7 @@ class MapContainer extends Component {
             const uri = "http://localhost:23500/analyse";
             const prm = DataService.analyzeMapRender(anaData,uri);
             prm.then((result) => {   
-                console.log(result)
+                //console.log(result)
                 this.setState({
                     "analyzeRenderResponse":result, 
                     analyzeRenderMessages: result.messages,
@@ -378,7 +378,7 @@ class MapContainer extends Component {
             const uri = "http://localhost:23500/render/svg"
             const prm = DataService.requestMapRender(reqData,uri);
             prm.then((result) => {   
-                console.log(result)
+                //console.log(result)
                 this.setState({
                     previewHtml: result
                 })

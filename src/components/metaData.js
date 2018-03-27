@@ -213,8 +213,6 @@ class MetaData extends Component {
                 </div>
 
 
-
-
                 <div id="tbMetaForm" className={metaFormCls}>
                     <div className="tab--background">
                         <nav className="tabs--js">
@@ -237,6 +235,8 @@ class MetaData extends Component {
                     </div>
               
                     <div id='metadata-panel' className={this.props.currentActiveTab==='metaData' ? 'show': 'hide'}>
+
+
                         <div className="title">
                             <label>Title:</label>
                             <input value={this.props.metaTitle} id='metaTitle' onChange={this.getMetaContent} />
@@ -252,6 +252,7 @@ class MetaData extends Component {
                             <input  value={this.props.metaSource} id='metaSource'  onChange={this.getMetaContent} /> <br />
                         </div>
 
+
                         <div className="source">
                             <label >Source link:</label>
                             <input  value={this.props.metaSourceLink} id='metaSourceLink'  onChange={this.getMetaContent} /> <br />
@@ -261,20 +262,18 @@ class MetaData extends Component {
                             <label >Notes:  <a onClick={this.onExpandNotes} href='#'>expand</a></label>
                             <textarea value={this.props.metaNotes} id='metaNotes'    onChange={this.getMetaContent} /> <br />
                         </div>
-
-
-
                       
                         <div className="source">
                             <label >License text:</label>
                             <input  value={this.props.metaLicence} id='metaLicense'  onChange={this.getMetaContent} /> <br />
-                            {/* <FileUpload/> */}
+                           
                         </div>
 
                         <div className="title">
                             <label>Map width:</label>
                             <input value={this.props.metaMapwidth} id='metaMapwidth' onChange={this.getMetaContent} />
                         </div>
+
 
                     </div>
 
@@ -381,9 +380,8 @@ class MetaData extends Component {
                                     let styles = {backgroundColor:`${b.color}`}
                                     return(
                                         <div key={index}>
-                                            {/* <input readOnly value={b.lower_bound} className="smltxt"  id='metaTitle'  />&nbsp;
-                                            <input  value={b.color} className="smltxt"  id='breakRGB' style={styles} /> */}
-                                            hello
+                                            <input readOnly value={b.lower_bound} className="smltxt"  id='metaTitle'  />&nbsp;
+                                            <input readOnly value={b.color} className="smltxt"  id='breakRGB' style={styles} /> 
                                         </div>)
                                 })
                             }
@@ -428,6 +426,10 @@ class MetaData extends Component {
 
 
                 </div>
+
+
+
+            
             </div>
         );
     }
