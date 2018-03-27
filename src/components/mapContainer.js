@@ -8,6 +8,7 @@ import colBrewer from './data/colorBrewer.json';
 
 
 const defaultRendererUri = 'http://localhost:23300';
+const topoJsonBoundariesUri  = 'https://api.github.com/repos/ONSvisual/topojson_boundaries/contents/';
 
 
 
@@ -37,20 +38,24 @@ class MapContainer extends Component {
         this.state = {
             view: 'editTable',
             rendererUri: props.rendererUri ? props.rendererUri : defaultRendererUri,
-            parsedData: '',
+            //parsedData: '',
             rawData: '',
             metaTitle: '',
             metaSubtitle: '',
             metaUnits: '',
             metaSource: '',
+            metaSourceLink: '',
             metaNotes: '',
-            metaSizeunits: 'auto',
+            metaNotesExp: '',
+            metaLicence:'',
+            metaMawidth:'',
             isDirty:false,
             metaFormHide:false,
             file:{},
             topoJson:[],
             selectTopoJson:'',
             csv:'',
+            csvKeyData:[],
             rawTopoJsonData:{}, // 
             analyzeRenderResponse:{}, // response from analyzerequest
             analyzeRenderMessages:[],
@@ -79,37 +84,103 @@ class MapContainer extends Component {
         this.cancel = this.cancel.bind(this);
         this.onError = this.onError.bind(this);    
         this.onSave = this.onSave.bind(this);    
+
+       
     }
 
 
+    componentWillMount() {
+       
+    }
 
     componentDidMount() {
-        if (this.props.data && !(Object.keys(this.props.data).length === 0))
-        {
-            this.populateMetaForm(this.props.data);
-        }
+        this.getTopoJsonBoundaryList(topoJsonBoundariesUri)
+            .then( ()=>{
+                if (this.props.data && !(Object.keys(this.props.data).length === 0))
+                {
+                    this.populateMetaFormState(this.props.data);
+                    this.onAnalyze()
+                        .then( ()=>{this.onPreviewMap()});                   
+                }
+            });
+    }
+
+   
+
+
+    getTopoJsonBoundaryList(uri) {
+        return new Promise((resolve) => {
+            const prm = DataService.getAllBoundaries(uri)
+            prm.then((boundaries) => {   
+                this.setState({"topoJson":boundaries});
+                resolve();
+            })
+                .catch((e)=> {
+                    console.log('getTopoJsonBoundaryList error',e);
+                    this.onError("No (or error) response from endpoint");
+                })
+          
+        })
     }
 
 
 
 
-    // onBackFromPreview() {
-    //     this.changeView('editTable');
-    // }
-
-
-
-    populateMetaForm(rebuildData){
+    populateMetaFormState(rebuildData){
+        console.log('in populateMetaForm')
+        console.log(rebuildData)
         this.setState({
-            metaTitle:rebuildData.title,
-            metaSubtitle:rebuildData.subtitle,
-            metaNotes: this.getFootNotes(rebuildData.footnotes),
-            metaSource:rebuildData.source,
-            metaSizeunits: rebuildData.cell_size_units || 'auto',
+            metaTitle:rebuildData.requestJson.title,
+            metaSubtitle:rebuildData.requestJson.subtitle,
+            metaSource:rebuildData.requestJson.source,
+            metaSourceLink:rebuildData.requestJson.source_link,
+            metaNotes: this.getFootNotes(rebuildData.requestJson.footnotes),
+            metaLicence: rebuildData.requestJson.licence,
+            metaMapwidth: rebuildData.requestJson.width,
+            
+            selectTopoJson:rebuildData.requestJson.topology_filename,
+            file:'preload',
+            csv:rebuildData.csv,
+            geography:rebuildData.requestJson.geography
+
+            //populate value /id select lists
+         
         })
 
-     
+        this.setColHeadersFromCSV(rebuildData.csv)
+        this.setState({
+            metaCsvKeysVal: rebuildData.requestJson.metaCsvkeysVal,
+            metaCsvKeysValtxt:rebuildData.requestJson.metaCsvkeysValtxt,
+            metaCsvKeysId:rebuildData.requestJson.metaCsvkeysId,
+            metaCsvKeysIdtxt:rebuildData.requestJson.metaCsvkeysIdtxt
+        })
+
+
+        this.setState({
+            rgbBreakVals:rebuildData.requestJson.choropleth.breaks,
+            selectedColBrewer:rebuildData.requestJson.selectedColorScheme,
+            selectedColBreaksIndex:0
+        })
+
+
+       
     }
+
+
+
+
+    setColHeadersFromCSV(data) {
+        let firstLine = data.split('\n').shift(); // first line 
+        let colHeaders = firstLine.split(',');
+        this.setState({"csvKeyData":colHeaders});
+    }
+
+
+    setSelectedColHeaders() {
+       
+    }
+
+
 
     changeView(viewType) {
         this.setState({
@@ -153,7 +224,7 @@ class MapContainer extends Component {
     onPreviewMap() {
         console.log('preview map clicked');
         const prom =  this.submitToRequestRender(this.buildRequestJson());
-        prom.then((previewData) => {   
+        prom.then(() => {   
             this.setDataDirty(false); 
         })
     }
@@ -161,9 +232,14 @@ class MapContainer extends Component {
 
 
     onAnalyze() {
-        const prom = this.getRawTopoJsonData(this.getTopoJsonObject());
-        prom.then( ()=> {
-            this.submitToAnalyzeRender(this.buildAnalyseJson());
+        return new Promise((resolve) => {
+            const prom = this.getRawTopoJsonData(this.getTopoJsonObject());
+            prom.then( ()=> {
+                this.submitToAnalyzeRender(this.buildAnalyseJson())
+                    .then( ()=> {
+                        resolve();
+                    });
+            });
         });
     }
 
@@ -178,15 +254,15 @@ class MapContainer extends Component {
         renderObj.subtitle = this.state.metaSubtitle;
         renderObj.source = this.state.metaSource;
         renderObj.source_link = this.state.metaSourceLink;
-        renderObj.width = 400;
+        renderObj.width = parseInt(this.state.metaMapwidth) || 400;
         renderObj.map_type = "choropleth";
-        renderObj.license = this.state.metaLicense
+        renderObj.licence = this.state.metaLicense
         renderObj.footnotes = this.addFootNotes();
        
 
         // geography
         //renderObj.geography = this.state.geography;
-        renderObj.geography = {
+        renderObj.geography =  {
             "id_property":"AREACD",
             "name_property":"AREANM",
             "topojson":this.state.rawTopoJsonData
@@ -205,6 +281,20 @@ class MapContainer extends Component {
             "vertical_legend_position": "after"
         }
        
+
+
+        //additional fields reqd.for onsave
+      
+        renderObj.selectedColorScheme=this.state.selectedColBrewer;
+        renderObj.topology_filename =this.state.selectTopoJson;
+        
+        renderObj.metaCsvkeysValtxt = this.state.metaCsvkeysValtxt;
+        renderObj.metaCsvkeysIdtxt = this.state.metaCsvkeysIdtxt;
+
+        renderObj.metaCsvkeysVal = this.state.metaCsvkeysVal;
+        renderObj.metaCsvkeysId = this.state.metaCsvkeysId;
+
+    
         return renderObj;
     }
 
@@ -212,14 +302,14 @@ class MapContainer extends Component {
     buildAnalyseJson() {
         let analyseObj = {};
         analyseObj.geography = {
-            "id_property":this.state.metaCsvkeysIdtxt,
-            "name_property":this.state.metaCsvkeysValtxt,
+            "id_property":this.state.metaCsvKeysIdtxt,
+            "name_property":this.state.metaCsvKeysValtxt,
             "topojson":this.state.rawTopoJsonData
         }
         
         analyseObj.csv = this.state.csv;
-        analyseObj.id_index =  parseInt(this.state.metaCsvkeysId) || 0;
-        analyseObj.value_index =parseInt(this.state.metaCsvkeysVal) || 0;
+        analyseObj.id_index =  parseInt(this.state.metaCsvKeysId) || 0;
+        analyseObj.value_index =parseInt(this.state.metaCsvKeysVal) || 0;
         analyseObj.has_header_row = true;
         console.log(analyseObj);
         this.setState({geography:analyseObj.geography});
@@ -227,10 +317,12 @@ class MapContainer extends Component {
     }
 
 
+    
 
 
     // gets actual TopoJson object data from state based on selection of boundary type
-    getTopoJsonObject() {    
+    getTopoJsonObject() {
+        
         const result = this.state.topoJson.filter(boundaryObj => boundaryObj.name ===this.state.selectTopoJson);
         return result[0].download_url;
     }
@@ -239,7 +331,7 @@ class MapContainer extends Component {
 
     // call the github endpoint stored in prop download_url
     getRawTopoJsonData(uri) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             const prm = DataService.getRawTopoJsonData(uri)
             prm.then((rawJson) => {   
                 this.setState({"rawTopoJsonData":rawJson});
@@ -255,31 +347,33 @@ class MapContainer extends Component {
 
 
     submitToAnalyzeRender(anaData) {
-        const uri = "http://localhost:23500/analyse";
-        const prm = DataService.analyzeMapRender(anaData,uri);
-        prm.then((result) => {   
-            console.log(result)
-            this.setState({
-                "analyzeRenderResponse":result, 
-                analyzeRenderMessages: result.messages,
-                colBreaks: result.breaks,
-                best_fit_class_count: result.best_fit_class_count,
-                selectedColBreaksIndex:this.lookupBestFitArray(result.best_fit_class_count,result.breaks),
-                previewHtml:this.formatAnalyzeResponseMsg(result.messages)
-            }) 
-                    
-        })
-            .catch((e)=> {
-                console.log('getRawTopoJsonData error',e);
-                this.onError("No (or error) response from endpoint");
+        return new Promise((resolve) => {
+            const uri = "http://localhost:23500/analyse";
+            const prm = DataService.analyzeMapRender(anaData,uri);
+            prm.then((result) => {   
+                console.log(result)
+                this.setState({
+                    "analyzeRenderResponse":result, 
+                    analyzeRenderMessages: result.messages,
+                    colBreaks: result.breaks,
+                    best_fit_class_count: result.best_fit_class_count,
+                    selectedColBreaksIndex:this.lookupBestFitArray(result.best_fit_class_count,result.breaks),
+                    previewHtml:this.formatAnalyzeResponseMsg(result.messages)
+                }) 
+                resolve(result);  
             })
+                .catch((e)=> {
+                    console.log('getRawTopoJsonData error',e);
+                    this.onError("No (or error) response from endpoint");
+                })
+        });
     }
 
 
 
 
     submitToRequestRender(reqData) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
         
             const uri = "http://localhost:23500/render/svg"
             const prm = DataService.requestMapRender(reqData,uri);
@@ -289,8 +383,7 @@ class MapContainer extends Component {
                     previewHtml: result
                 })
 
-                resolve(result);
-                    
+                resolve(result);  
             })
                 .catch((e)=> {
                     console.log('request map render  error',e);
@@ -324,6 +417,7 @@ class MapContainer extends Component {
     // extract the Meta notes string from footnotes json
     // when loading an existing table
     getFootNotes(data) {
+        
         return  data.toString().replace(",","\n",-1);       
     }
 
@@ -367,12 +461,14 @@ class MapContainer extends Component {
                         metaTitle={this.state.metaTitle}
                         metaSubtitle={this.state.metaSubtitle}
                         metaSource={this.state.metaSource}
+                        metaSourceLink={this.state.metaSourceLink}
                         metaNotes={this.state.metaNotes}
-                        metaHeadercols={this.state.metaHeadercols}
-                        metaHeaderrows={this.state.metaHeaderrows}
-                        metaSizeunits={this.state.metaSizeunits}
+                        metaNotesExp={this.state.metaNotesExp}
+                        metaLicence = {this.state.metaLicence}
+                        metaMapwidth = {this.state.metaMapwidth}
                         topoJson ={this.state.topoJson}
                         selectedBoundary={this.state.selectedBoundary}
+                        selectTopoJson={this.state.selectTopoJson}
                         currentActiveTab = {this.state.currentActiveTab}
                         colBreaks = {this.state.colBreaks}
                         selectedColBreaksIndex = {this.state.selectedColBreaksIndex}
@@ -381,7 +477,11 @@ class MapContainer extends Component {
                         colBrewerResource = {this.state.colBrewerResource}
                         selectedColBrewer = {this.state.selectedColBrewer}
                         rgbBreakVals = {this.state.rgbBreakVals}
+                        csvKeyData = {this.state.csvKeyData}
+                        metaCsvKeysVal = {this.state.metaCsvKeysVal}
+                        metaCsvKeysId = {this.state.metaCsvKeysId}
 
+                     
                     />
                     <div className="grid"> 
                         <Previewer previewHtml={this.state.previewHtml} />
@@ -389,11 +489,7 @@ class MapContainer extends Component {
                 </div>;
         }
             
-        // else {
-        //     viewComponent = <Previewer previewHtml={this.state.previewHtml} />
-        // }
-
-
+       
         return (
             <div className="gridContainer">
                 {viewComponent}
@@ -418,7 +514,9 @@ class MapContainer extends Component {
 MapContainer.propTypes = {
     data: PropTypes.object,
     onSave: PropTypes.func,
-    rendererUri:PropTypes.string
+    rendererUri:PropTypes.string,
+    onCancel: PropTypes.func,
+    onError:PropTypes.func
 }
 
 export default MapContainer;

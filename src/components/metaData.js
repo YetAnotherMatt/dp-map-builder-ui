@@ -1,20 +1,19 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import DataService from '../utility/dataService';
-import FileUpload from './FileUpload';
+//import DataService from '../utility/dataService';
 
 
-const topoJsonBoundariesUri  = 'https://api.github.com/repos/ONSvisual/topojson_boundaries/contents/';
+
+//const topoJsonBoundariesUri  = 'https://api.github.com/repos/ONSvisual/topojson_boundaries/contents/';
 
 class MetaData extends Component {
 
     constructor(props) {
         super(props);
         this.state = { 
-            csvKeyData:[],
+          
             expandNotes: false,
             notesFocusflag:false,
-            //rgbBreakVals:[]
         };
         this.getMetaContent = this.getMetaContent.bind(this);
         // this.setColBreakRGBVals = this.setColBreakRGBVals.bind(this);
@@ -23,23 +22,33 @@ class MetaData extends Component {
         this.onChangeTab = this.onChangeTab.bind(this);
         this.onSelectColorBrewerChange = this.onSelectColorBrewerChange.bind(this);
         this.onSelectBreakChange = this. onSelectBreakChange.bind(this);
+
+       
     }
 
    
-    //{},{},{},{},{},{},{},{},{},{},{}
+  
 
     componentWillMount() {
-        this.getTopoJsonBoundaryList(topoJsonBoundariesUri);
+    
     }
+
+
+    componentDidMount() {
+       
+    }
+    
 
     componentDidUpdate() {
         if (this.state.expandNotes===true && this.state.notesFocusflag===true) {
             this.metaNotesRef.focus();
             this.setState({notesFocusflag:false})
         }  
+
+       
     }
 
-
+   
 
     getMetaContent(event) {
         
@@ -53,7 +62,7 @@ class MetaData extends Component {
 
         //we need both val and text props for selected option
         //id_index, value_index
-        if (key==="metaCsvkeysId" || key==="metaCsvkeysVal")
+        if (key==="metaCsvKeysId" || key==="metaCsvKeysVal")
         {
             const index = event.nativeEvent.target.selectedIndex;
             const txt =  event.nativeEvent.target[index].text;
@@ -62,30 +71,16 @@ class MetaData extends Component {
             newObj[newKey]=txt;
             this.props.setMetaData(newObj);
         }
+
+
+        if (key ==='metaNotesExp') {
+            this.props.setMetaData({metaNotes:val});
+        }
+
+        if (key ==='metaNotes') {
+            this.props.setMetaData({metaNotesExp:val})
+        }
     }
-
-
-
-
-
-    // stores the break rgb vals in parent state
-    // setColBreakRGBVals(event) {
-    //     console.log('in setcolbreaks')
-    //     console.log(this.state.rgbBreakVals.length)
-
-    //     const index = event.target.dataset.tag
-    //     const colbreak = event.target.dataset.colbreak;
-    //     const rgbVal = event.target.value
-
-    //     const breakIdx = this.props.selectedColBreaksIndex 
-    //     let colBreaks = this.getSelectedColBreaks(breakIdx);
-    //     //console.log('###', colBreaks.length)
-        
-    //     const rgbObj = {"index": index, "colbreak": colbreak, "rgb": rgbVal};
-    //     let arrayvar = this.state.rgbBreakVals.slice()
-    //     arrayvar[index]=rgbObj;
-    //     this.setState({rgbBreakVals: arrayvar })
-    // }
 
 
     
@@ -142,10 +137,9 @@ class MetaData extends Component {
             //console.log(fls);
             this.props.setMetaData({"file":fls.name});
             const reader = new FileReader();
-            
             reader.onload = ()=>{
                 const dataContents = reader.result;
-                const firstLine = this.getColHeadersFromCSV(dataContents);
+                //const firstLine = this.getColHeadersFromCSV(dataContents);
                 this.props.setMetaData({"csv":dataContents});
             };
             reader.readAsText(fls);
@@ -157,16 +151,16 @@ class MetaData extends Component {
 
     onChangeTab(e) {
         const tab = e.target.id;
-        //this.setState({currentActiveTab:tab});
         this.props.setMetaData({"currentActiveTab":tab});
-
     }
 
+    
     getColHeadersFromCSV(data) {
 
         let firstLine = data.split('\n').shift(); // first line 
         let colHeaders = firstLine.split(',');
-        this.setState({csvKeyData:colHeaders})
+        //this.setState({csvKeyData:colHeaders})
+        this.props.setMetaData({"csvKeyData":colHeaders});
         return colHeaders
     }
 
@@ -175,17 +169,17 @@ class MetaData extends Component {
    
 
 
-    getTopoJsonBoundaryList(uri) {
+    // getTopoJsonBoundaryList(uri) {
 
-        const prm = DataService.getAllBoundaries(uri)
-        prm.then((boundaries) => {   
-            this.props.setMetaData({"topoJson":boundaries});
-        })
-            .catch((e)=> {
-                console.log('getTopoJsonBoundaryList error',e);
-                this.onError("No (or error) response from endpoint");
-            })
-    }
+    //     const prm = DataService.getAllBoundaries(uri)
+    //     prm.then((boundaries) => {   
+    //         this.props.setMetaData({"topoJson":boundaries});
+    //     })
+    //         .catch((e)=> {
+    //             console.log('getTopoJsonBoundaryList error',e);
+    //             this.onError("No (or error) response from endpoint");
+    //         })
+    // }
 
 
     getSelectedColBreaks(index) {
@@ -205,9 +199,8 @@ class MetaData extends Component {
         const metaContainerClass = `metaContainer ${metaContainerVisibility}`
         const expanderClass = `expandCollapse ${metaFormCls}`;
         
-        const breakIdx = this.props.selectedColBreaksIndex || -1;
-
-        let colBreaks = this.getSelectedColBreaks(breakIdx);
+        //const breakIdx = this.props.selectedColBreaksIndex || -1;
+        // let colBreaks = this.getSelectedColBreaks(breakIdx);
         let rgbBreakVals = this.props.rgbBreakVals;
 
         return (
@@ -216,7 +209,7 @@ class MetaData extends Component {
                 <div className={expanderClass}> <a onClick={this.props.setMetaDataHide} href='#'>{this.props.formHide === true? ">": "<"}</a></div>
                 <div id="tbNotesContainer" className={tbNotesContainerCls}>
                     <label >Notes:  <a onClick={this.onExpandNotes} href='#'>collapse</a></label>
-                    <textarea  ref={(textarea) => { this.metaNotesRef = textarea; }}  value={this.props.metaNotes} id='metaNotes'   onChange={this.getMetaContent} /> 
+                    <textarea  ref={(textarea) => { this.metaNotesRef = textarea; }}  value={this.props.metaNotesExp} id='metaNotesExp'   onChange={this.getMetaContent} /> 
                 </div>
 
 
@@ -274,8 +267,13 @@ class MetaData extends Component {
                       
                         <div className="source">
                             <label >License text:</label>
-                            <input  value={this.props.license} id='metaLicense'  onChange={this.getMetaContent} /> <br />
+                            <input  value={this.props.metaLicence} id='metaLicense'  onChange={this.getMetaContent} /> <br />
                             {/* <FileUpload/> */}
+                        </div>
+
+                        <div className="title">
+                            <label>Map width:</label>
+                            <input value={this.props.metaMapwidth} id='metaMapwidth' onChange={this.getMetaContent} />
                         </div>
 
                     </div>
@@ -286,7 +284,7 @@ class MetaData extends Component {
                         <div className="sizeUnits2">
                             <label title="select boundaries">TopoJSON Boundaries:</label>
                             <div className="select-wrap">
-                                <select id="selectTopoJson" value={this.props.selectedBoundary} onChange={this.getMetaContent}>
+                                <select id="selectTopoJson" value={this.props.selectTopoJson} onChange={this.getMetaContent}>
                                     <option key="-1" value="none">select</option>
                                     {
                                         this.props.topoJson.map(function(b) {
@@ -305,14 +303,14 @@ class MetaData extends Component {
             
                         </div>
 
-                        <div id="metaCsvKeysGroup" className={(this.state.csvKeyData).length===0 ? 'hide': 'show'}>
+                        <div id="metaCsvKeysGroup" className={(this.props.csvKeyData).length===0 ? 'show': 'show'}>
                             <div className="sizeUnits2">
                                 <label>Value Key:</label>
                                 <div className= " select-wrap">
-                                    <select id="metaCsvkeysVal" value={this.props.metaCsvKeysVal} onChange={this.getMetaContent}>
+                                    <select id="metaCsvKeysVal" value={this.props.metaCsvKeysVal} onChange={this.getMetaContent}>
                                         <option key="-1" value="none">select</option>
                                         {
-                                            this.state.csvKeyData.map(function(b,index) {
+                                            this.props.csvKeyData.map(function(b,index) {
                                                 return <option key={index}
                                                     value={index}>{b}</option>;
                                             })
@@ -325,10 +323,10 @@ class MetaData extends Component {
                                
                                 <label>Id Key:</label>
                                 <div className="select-wrap">
-                                    <select id="metaCsvkeysId" value={this.props.metaCsvKeysId} onChange={this.getMetaContent}>
+                                    <select id="metaCsvKeysId" value={this.props.metaCsvKeysId} onChange={this.getMetaContent}>
                                         <option key="-1" value="none">select</option>
                                         {
-                                            this.state.csvKeyData.map(function(b,index) {
+                                            this.props.csvKeyData.map(function(b,index) {
                                                 return <option key={index}
                                                     value={index}>{b}</option>;
                                             })
@@ -377,22 +375,54 @@ class MetaData extends Component {
 
                        
                         <div className="title">  
-                           
-                         
+                                                    
                             {
                                 rgbBreakVals.map((b,index)=> {
                                     let styles = {backgroundColor:`${b.color}`}
                                     return(
                                         <div key={index}>
-                                            <input readOnly value={b.lower_bound} className="smltxt"  id='metaTitle'  />&nbsp;
-                                            <input  value={b.color} className="smltxt"  id='breakRGB' style={styles} />
+                                            {/* <input readOnly value={b.lower_bound} className="smltxt"  id='metaTitle'  />&nbsp;
+                                            <input  value={b.color} className="smltxt"  id='breakRGB' style={styles} /> */}
+                                            hello
                                         </div>)
                                 })
                             }
                            
                         </div>
 
-                        
+                        <div className="title">
+                            <label>Upper bound text:</label>
+                            <input value={this.props.metaUpperbound} id='metaUpperbound' onChange={this.getMetaContent} />
+                        </div>
+
+                        <div className="title">
+                            <label>Horizontal legend pos:</label>
+                            <input value={this.props.metaHLegendpos} id='metaHLegendpos' onChange={this.getMetaContent} />
+                        </div>
+
+
+                        {/* <div className="title">
+                            <label>Reference value:</label>
+                            <input value={this.props.metaReferenceValue} id='metaReferenceValue' onChange={this.getMetaContent} />
+                        </div>
+
+                        <div className="title">
+                            <label>Reference value text:</label>
+                            <input value={this.props.metaReferenceValueText} id='metaReferenceValueText' onChange={this.getMetaContent} />
+                        </div>
+
+
+                        <div className="title">
+                            <label>Value prefix:</label>
+                            <input value={this.props.metaValuePrefix} id='metaValuePrefix' onChange={this.getMetaContent} />
+                        </div>
+
+                        <div className="title">
+                            <label>Value suffix:</label>
+                            <input value={this.props.metaValueSuffix} id='metaValueSuffix' onChange={this.getMetaContent} />
+                        </div> */}
+
+
 
                     </div>
 
@@ -414,9 +444,30 @@ MetaData.propTypes = {
     metaHeadercols: PropTypes.number,
     metaHeaderrows: PropTypes.number,
     metaNotes: PropTypes.string,
+    metaNotesExp: PropTypes.string,
     setMetaData:PropTypes.func,
     setMetaDataHide:PropTypes.func,
-    formHide:PropTypes.bool
+    formHide:PropTypes.bool,
+    
+    colBrewerResource:PropTypes.object,
+    selectedColBrewer:PropTypes.string,
+    rgbBreakVals:PropTypes.array,
+    currentActiveTab:PropTypes.string,
+    metaSourceLink:PropTypes.string,
+    metaMapwidth:PropTypes.number,
+    metaLicence:PropTypes.string,
+    selectTopoJson:PropTypes.string,
+    metaHLegendpos:PropTypes.string,
+    metaUpperbound:PropTypes.string,
+    colBrewerNames:PropTypes.array,
+    csvKeyData:PropTypes.array,
+    metaCsvKeysId:PropTypes.string,
+    metaCsvKeysVal:PropTypes.string,
+    
+    topoJson:PropTypes.array,
+    selectedColBreaksIndex:PropTypes.number,
+    colBreaks:PropTypes.array
+
    
 };
 
