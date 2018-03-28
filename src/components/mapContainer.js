@@ -100,7 +100,7 @@ class MapContainer extends Component {
                 {
                     this.populateMetaFormState(this.props.data);
                     this.onAnalyze()
-                        .then( ()=>{this.onPreviewMap()});                   
+                        .then( () => this.onPreviewMap());                   
                 }
             });
     }
@@ -271,14 +271,14 @@ class MapContainer extends Component {
         renderObj.data = this.state.analyzeRenderResponse.data;
 
         renderObj.choropleth = {
-            "reference_value": 13,
-            "reference_value_text": "UK",
+            "reference_value": this.state.metaReferenceValue,
+            "reference_value_text": this.state.metaReferenceValueText,
             "breaks": this.state.rgbBreakVals,
             "missing_value_color": "LightGrey",
-            "value_prefix": "",
-            "value_suffix": "% non-UK born",
-            "horizontal_legend_position": "before",
-            "vertical_legend_position": "after"
+            "value_prefix": this.state.metaValuePrefix,
+            "value_suffix": this.state.metaValueSuffix,
+            "horizontal_legend_position": this.state.metaHLegendpos,
+            "vertical_legend_position": this.state.metaVLegendpos
         }
        
 
@@ -294,7 +294,10 @@ class MapContainer extends Component {
         renderObj.metaCsvkeysVal = this.state.metaCsvkeysVal;
         renderObj.metaCsvkeysId = this.state.metaCsvkeysId;
 
-    
+
+        renderObj.metaUpperbound = this.state.metaUpperbound;
+      
+
         return renderObj;
     }
 
@@ -374,7 +377,7 @@ class MapContainer extends Component {
 
     submitToRequestRender(reqData) {
         return new Promise((resolve) => {
-        
+            console.log(reqData)
             const uri = "http://localhost:23500/render/svg"
             const prm = DataService.requestMapRender(reqData,uri);
             prm.then((result) => {   

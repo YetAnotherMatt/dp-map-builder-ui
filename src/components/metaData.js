@@ -170,17 +170,7 @@ class MetaData extends Component {
    
 
 
-    // getTopoJsonBoundaryList(uri) {
-
-    //     const prm = DataService.getAllBoundaries(uri)
-    //     prm.then((boundaries) => {   
-    //         this.props.setMetaData({"topoJson":boundaries});
-    //     })
-    //         .catch((e)=> {
-    //             console.log('getTopoJsonBoundaryList error',e);
-    //             this.onError("No (or error) response from endpoint");
-    //         })
-    // }
+  
 
 
     getSelectedColBreaks(index) {
@@ -227,15 +217,13 @@ class MetaData extends Component {
                                 <li className="tab__item width-sm--6">
                                     <a id="themeData" href="#" onClick={this.onChangeTab} className= {this.props.currentActiveTab==='themeData' ? ' tab__link tab__link--active': 'tab__link'}>Color Theme</a>
                                 </li>
-                                {/* <li className="tab__item width-sm--6">
-                                    <a id="otherData" href="#" onClick={this.onChangeTab} className= {this.props.currentActiveTab==='otherData' ? ' tab__link tab__link--active': 'tab__link'}>Other</a>
-                                </li> */}
+                              
                           
                             </ul>
                         </nav>
                     </div>
               
-                    <div id='metadata-panel' className={this.props.currentActiveTab==='metaData' ? 'show': 'hide'}>
+                    <div id='metadata-panel' className={this.props.currentActiveTab==='metaData' ? 'show metapanel': 'hide'}>
 
 
                         <div className="title">
@@ -266,7 +254,7 @@ class MetaData extends Component {
                       
                         <div className="source">
                             <label >License text:</label>
-                            <input  value={this.props.metaLicence} id='metaLicense'  onChange={this.getMetaContent} /> <br />
+                            <input  value={this.props.metaLicence} id='metaLicence'  onChange={this.getMetaContent} /> <br />
                            
                         </div>
 
@@ -280,7 +268,7 @@ class MetaData extends Component {
 
                  
                   
-                    <div  id='metaCsvData-panel' className={this.props.currentActiveTab==='uploadData' ? 'show': 'hide'} >
+                    <div  id='metaCsvData-panel' className={this.props.currentActiveTab==='uploadData' ? 'show metapanel': 'hide'} >
                         <div className="sizeUnits2">
                             <label title="select boundaries">TopoJSON Boundaries:</label>
                             <div className="select-wrap">
@@ -336,11 +324,34 @@ class MetaData extends Component {
                             </div>
                         </div>
 
+
+                        <div className="title">
+                            <label>Reference value:</label>
+                            <input value={this.props.metaReferenceValue} id='metaReferenceValue' onChange={this.getMetaContent} />
+                        </div>
+
+                        <div className="title">
+                            <label>Reference value text:</label>
+                            <input value={this.props.metaReferenceValueText} id='metaReferenceValueText' onChange={this.getMetaContent} />
+                        </div>
+
+
+                        <div className="title">
+                            <label>Value prefix:</label>
+                            <input value={this.props.metaValuePrefix} id='metaValuePrefix' onChange={this.getMetaContent} />
+                        </div>
+
+                        <div className="title">
+                            <label>Value suffix:</label>
+                            <input value={this.props.metaValueSuffix} id='metaValueSuffix' onChange={this.getMetaContent} />
+                        </div>
+
+
                     </div>
 
 
 
-                    <div id='metaTheme-panel' className={this.props.currentActiveTab==='themeData' ? 'show': 'hide'}>
+                    <div id='metaTheme-panel' className={this.props.currentActiveTab==='themeData' ? 'show metapanel': 'hide'}>
                        
                         <label>Breaks:</label>
                         <div className="select-wrap">
@@ -399,28 +410,11 @@ class MetaData extends Component {
                             <input value={this.props.metaHLegendpos} id='metaHLegendpos' onChange={this.getMetaContent} />
                         </div>
 
-
-                        {/* <div className="title">
-                            <label>Reference value:</label>
-                            <input value={this.props.metaReferenceValue} id='metaReferenceValue' onChange={this.getMetaContent} />
-                        </div>
-
                         <div className="title">
-                            <label>Reference value text:</label>
-                            <input value={this.props.metaReferenceValueText} id='metaReferenceValueText' onChange={this.getMetaContent} />
+                            <label>Vertical legend pos:</label>
+                            <input value={this.props.metaVLegendpos} id='metaVLegendpos' onChange={this.getMetaContent} />
                         </div>
-
-
-                        <div className="title">
-                            <label>Value prefix:</label>
-                            <input value={this.props.metaValuePrefix} id='metaValuePrefix' onChange={this.getMetaContent} />
-                        </div>
-
-                        <div className="title">
-                            <label>Value suffix:</label>
-                            <input value={this.props.metaValueSuffix} id='metaValueSuffix' onChange={this.getMetaContent} />
-                        </div> */}
-
+                
 
 
                     </div>
@@ -461,6 +455,7 @@ MetaData.propTypes = {
     metaLicence:PropTypes.string,
     selectTopoJson:PropTypes.string,
     metaHLegendpos:PropTypes.string,
+    metaVLegendpos:PropTypes.string,
     metaUpperbound:PropTypes.string,
     colBrewerNames:PropTypes.array,
     csvKeyData:PropTypes.array,
@@ -469,9 +464,12 @@ MetaData.propTypes = {
     
     topoJson:PropTypes.array,
     selectedColBreaksIndex:PropTypes.number,
-    colBreaks:PropTypes.array
+    colBreaks:PropTypes.array,
 
-   
+    metaReferenceValue:PropTypes.string,
+    metaReferenceValueText:PropTypes.string,
+    metaValuePrefix:PropTypes.string,
+    metaValueSuffix:PropTypes.string
 };
 
 
