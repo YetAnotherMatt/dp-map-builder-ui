@@ -7,17 +7,13 @@ import DataService from '../utility/dataService';
 import colBrewer from './data/colorBrewer.json';
 
 
-const defaultRendererUri = 'http://localhost:23300';
+const defaultRendererUri = "http://localhost:23500";
 const topoJsonBoundariesUri  = 'https://api.github.com/repos/ONSvisual/topojson_boundaries/contents/';
 
 
 
 class MapContainer extends Component {
 
-
-    // rawData: initial data from handsontable output
-    // parseData: output from parse endpoint
-    // previewHtml: output from parse endpoint
 
     constructor(props) {
         super(props);
@@ -38,7 +34,6 @@ class MapContainer extends Component {
         this.state = {
             view: 'editTable',
             rendererUri: props.rendererUri ? props.rendererUri : defaultRendererUri,
-            //parsedData: '',
             rawData: '',
             metaTitle: '',
             metaSubtitle: '',
@@ -127,8 +122,6 @@ class MapContainer extends Component {
 
 
     populateMetaFormState(rebuildData){
-        //console.log('in populateMetaForm')
-        //console.log(rebuildData)
         this.setState({
             metaTitle:rebuildData.requestJson.title,
             metaSubtitle:rebuildData.requestJson.subtitle,
@@ -254,7 +247,9 @@ class MapContainer extends Component {
         renderObj.subtitle = this.state.metaSubtitle;
         renderObj.source = this.state.metaSource;
         renderObj.source_link = this.state.metaSourceLink;
-        renderObj.width = parseInt(this.state.metaMapwidth) || 400;
+        renderObj.width = 400; //parseInt(this.state.metaMapwidth) || 400;
+        renderObj.min_width =300;
+        renderObj.max_width = 500;
         renderObj.map_type = "choropleth";
         renderObj.licence = this.state.metaLicense
         renderObj.footnotes = this.addFootNotes();
@@ -271,17 +266,16 @@ class MapContainer extends Component {
         renderObj.data = this.state.analyzeRenderResponse.data;
 
         renderObj.choropleth = {
-            "reference_value": this.state.metaReferenceValue,
+            "reference_value": parseInt(this.state.metaReferenceValue) || 0,
             "reference_value_text": this.state.metaReferenceValueText,
             "breaks": this.state.rgbBreakVals,
             "missing_value_color": "LightGrey",
             "value_prefix": this.state.metaValuePrefix,
             "value_suffix": this.state.metaValueSuffix,
-            "horizontal_legend_position": this.state.metaHLegendpos,
-            "vertical_legend_position": this.state.metaVLegendpos
+            "horizontal_legend_position": "before", // this.state.metaHLegendpos,
+            "vertical_legend_position":"after" // this.state.metaVLegendpos
         }
        
-
 
         //additional fields reqd.for onsave
       
@@ -351,7 +345,7 @@ class MapContainer extends Component {
 
     submitToAnalyzeRender(anaData) {
         return new Promise((resolve) => {
-            const uri = "http://localhost:23500/analyse";
+            const uri = this.state.rendererUri + '/analyse'
             const prm = DataService.analyzeMapRender(anaData,uri);
             prm.then((result) => {   
                 //console.log(result)
@@ -378,7 +372,7 @@ class MapContainer extends Component {
     submitToRequestRender(reqData) {
         return new Promise((resolve) => {
             console.log(reqData)
-            const uri = "http://localhost:23500/render/svg"
+            const uri = this.state.rendererUri + '/render/svg'
             const prm = DataService.requestMapRender(reqData,uri);
             prm.then((result) => {   
                 //console.log(result)
@@ -483,6 +477,7 @@ class MapContainer extends Component {
                         csvKeyData = {this.state.csvKeyData}
                         metaCsvKeysVal = {this.state.metaCsvKeysVal}
                         metaCsvKeysId = {this.state.metaCsvKeysId}
+                        onError = {this.onError}
 
                      
                     />

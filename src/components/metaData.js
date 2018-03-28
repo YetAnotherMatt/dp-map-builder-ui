@@ -112,12 +112,18 @@ class MetaData extends Component {
 
     populateRgbBreakVals(colBreaks,tempRGBObj) {
         let arrayvar = [];
-        for (let i = 0; i < colBreaks.length; i++) { 
-            const rgbObj = {"lower_bound": colBreaks[i], "color": tempRGBObj[i]};
-            arrayvar[i]=rgbObj;
+        if (tempRGBObj)
+        {
+            for (let i = 0; i < colBreaks.length; i++) { 
+                const rgbObj = {"lower_bound": colBreaks[i], "color": tempRGBObj[i]};
+                arrayvar[i]=rgbObj;
+            }
+
+            this.props.setMetaData({rgbBreakVals: arrayvar });
         }
-        // this.setState({rgbBreakVals: arrayvar })
-        this.props.setMetaData({rgbBreakVals: arrayvar });
+        else {
+            this.props.onError('colour out of range for this break');
+        }
     }
 
 
@@ -256,11 +262,6 @@ class MetaData extends Component {
                             <label >License text:</label>
                             <input  value={this.props.metaLicence} id='metaLicence'  onChange={this.getMetaContent} /> <br />
                            
-                        </div>
-
-                        <div className="title">
-                            <label>Map width:</label>
-                            <input value={this.props.metaMapwidth} id='metaMapwidth' onChange={this.getMetaContent} />
                         </div>
 
 
@@ -405,15 +406,7 @@ class MetaData extends Component {
                             <input value={this.props.metaUpperbound} id='metaUpperbound' onChange={this.getMetaContent} />
                         </div>
 
-                        <div className="title">
-                            <label>Horizontal legend pos:</label>
-                            <input value={this.props.metaHLegendpos} id='metaHLegendpos' onChange={this.getMetaContent} />
-                        </div>
-
-                        <div className="title">
-                            <label>Vertical legend pos:</label>
-                            <input value={this.props.metaVLegendpos} id='metaVLegendpos' onChange={this.getMetaContent} />
-                        </div>
+                     
                 
 
 
@@ -451,11 +444,8 @@ MetaData.propTypes = {
     rgbBreakVals:PropTypes.array,
     currentActiveTab:PropTypes.string,
     metaSourceLink:PropTypes.string,
-    metaMapwidth:PropTypes.number,
     metaLicence:PropTypes.string,
     selectTopoJson:PropTypes.string,
-    metaHLegendpos:PropTypes.string,
-    metaVLegendpos:PropTypes.string,
     metaUpperbound:PropTypes.string,
     colBrewerNames:PropTypes.array,
     csvKeyData:PropTypes.array,
@@ -469,8 +459,18 @@ MetaData.propTypes = {
     metaReferenceValue:PropTypes.string,
     metaReferenceValueText:PropTypes.string,
     metaValuePrefix:PropTypes.string,
-    metaValueSuffix:PropTypes.string
+    metaValueSuffix:PropTypes.string,
+    onError:PropTypes.func
 };
 
+
+MetaData.defaultProps = {
+    topoJson: [],
+    csvKeyData:[],
+    colBreaks:[],
+    colBrewerNames:[],
+    rgbBreakVals:[]
+   
+};
 
 export default MetaData;

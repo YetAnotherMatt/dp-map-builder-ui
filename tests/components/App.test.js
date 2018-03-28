@@ -3,6 +3,7 @@ import { shallow, configure } from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 
 import MapContainer from '../../src/components/mapContainer';
+import MetaData from '../../src/components/metaData';
 
 configure({ adapter: new Adapter() });
 
@@ -11,6 +12,7 @@ describe('App Component', () => {
 
     beforeEach(() => {
         wrapper = shallow(<MapContainer />);
+        //wrapper = shallow(<MetaData />);
     });
 
     it('GridContainer should exist', () => {

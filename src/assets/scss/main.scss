@@ -293,3 +293,36 @@ height:625px;
 padding:10px;
 overflow-y: auto;
 }
+
+
+.map__caption {
+    font-size: 125%;
+    font-weight: bold;
+    line-height: 24px;
+    margin: 16px 0;
+    padding: 5px 0 3px 0;
+ }
+ 
+ .map__subtitle {
+    font-size: 90%;
+ }
+ 
+ div.map_key__vertical, div.map {
+    display: inline-block;
+ }
+ div.map_key__horizontal {
+    clear: both;
+    width:100%;
+ }
+ div.map_container {
+    width:100%;    
+ }
+ 
+ .mapRegion {
+    stroke: #323132;
+    stroke-width: 0.5;
+ }
+ .mapRegion:hover {
+    stroke: purple;
+    stroke-width: 1;
+ }
