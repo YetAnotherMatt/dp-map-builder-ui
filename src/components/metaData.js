@@ -465,7 +465,7 @@ MetaData.propTypes = {
     metaSourceLink:PropTypes.string,
     metaLicence:PropTypes.string,
     selectTopoJson:PropTypes.string,
-    metaUpperbound:PropTypes.string,
+    metaUpperbound:PropTypes.number,
     colBrewerNames:PropTypes.object,
     colBrewerGroups:PropTypes.object,
     csvKeyData:PropTypes.array,
@@ -476,7 +476,7 @@ MetaData.propTypes = {
     selectedColBreaksIndex:PropTypes.number,
     colBreaks:PropTypes.array,
 
-    metaReferenceValue:PropTypes.string,
+    metaReferenceValue:PropTypes.number,
     metaReferenceValueText:PropTypes.string,
     metaValuePrefix:PropTypes.string,
     metaValueSuffix:PropTypes.string,
