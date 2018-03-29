@@ -166,9 +166,11 @@ class MetaData extends Component {
 
         let firstLine = data.split('\n').shift(); // first line 
         let colHeaders = firstLine.split(',');
-        //this.setState({csvKeyData:colHeaders})
         this.props.setMetaData({"csvKeyData":colHeaders});
-        //return colHeaders
+        // pre-select AREACD as the id column if it is present and no column is yet selected
+        if (!this.props.metaCsvKeysId && colHeaders.includes("AREACD")) {
+            this.props.setMetaData({"metaCsvKeysIdtxt": "AREACD", "metaCsvKeysId": colHeaders.findIndex(x => x=="AREACD")})
+        }
     }
 
 
@@ -177,7 +179,6 @@ class MetaData extends Component {
         let list = [];
     
         for (var group in this.props.colBrewerGroups) {
-            console.log(group)
             let opt = []
             for (var key in this.props.colBrewerResource) {
                 let colour = this.props.colBrewerResource[key]
@@ -186,7 +187,6 @@ class MetaData extends Component {
                     opt.push(<option key={key}>{name}</option>)
                 }
             }
-            console.log(opt)
             list.push(<optgroup key={group} label={this.props.colBrewerGroups[group]}>{opt}</optgroup>);
         }
     
@@ -289,7 +289,7 @@ class MetaData extends Component {
                   
                     <div  id='metaCsvData-panel' className={this.props.currentActiveTab==='uploadData' ? 'show metapanel': 'hide'} >
                         <div className="sizeUnits2">
-                            <label title="select boundaries">TopoJSON Boundaries:</label>
+                            <label title="The Topojson file defining the map to display">Topology:</label>
                             <div className="select-wrap">
                                 <select id="selectTopoJson" value={this.props.selectTopoJson} onChange={this.getMetaContent}>
                                     <option key="-1" value="none">select</option>
@@ -305,30 +305,16 @@ class MetaData extends Component {
                         </div>
 
                         <div className="source">
-                            <label >CSV select:</label>
+                            <label title="The data used to colour the map">Upload CSV data:</label>
                             <input type="file" accept=".csv" onChange={this.onFileSelect} /> <br />
             
                         </div>
 
                         <div id="metaCsvKeysGroup" className={(this.props.csvKeyData).length===0 ? 'show': 'show'}>
-                            <div className="sizeUnits2">
-                                <label>Value Key:</label>
-                                <div className= " select-wrap">
-                                    <select id="metaCsvKeysVal" value={this.props.metaCsvKeysVal} onChange={this.getMetaContent}>
-                                        <option key="-1" value="none">select</option>
-                                        {
-                                            this.props.csvKeyData.map(function(b,index) {
-                                                return <option key={index}
-                                                    value={index}>{b}</option>;
-                                            })
-                                        }
-                                    </select>
-                                </div>
-                            </div>
 
                             <div className="sizeUnits2">
                                
-                                <label>Id Key:</label>
+                                <label title="The column that contains the id of the region. Values should match the ID of regions in the chosen topology.">Id Column:</label>
                                 <div className="select-wrap">
                                     <select id="metaCsvKeysId" value={this.props.metaCsvKeysId} onChange={this.getMetaContent}>
                                         <option key="-1" value="none">select</option>
@@ -341,27 +327,41 @@ class MetaData extends Component {
                                     </select>                  
                                 </div>
                             </div>
+                            <div className="sizeUnits2">
+                                <label title="The column that contains the value used to give the region a colour. Must contain numeric values.">Value Column:</label>
+                                <div className= " select-wrap">
+                                    <select id="metaCsvKeysVal" value={this.props.metaCsvKeysVal} onChange={this.getMetaContent}>
+                                        <option key="-1" value="none">select</option>
+                                        {
+                                            this.props.csvKeyData.map(function(b,index) {
+                                                return <option key={index}
+                                                    value={index}>{b}</option>;
+                                            })
+                                        }
+                                    </select>
+                                </div>
+                            </div>
                         </div>
 
 
                         <div className="title">
-                            <label>Reference value:</label>
+                            <label title="A value against which other values should be compared - e.g. an average for the nation. Appears in the legend only.">Reference value:</label>
                             <input value={this.props.metaReferenceValue} id='metaReferenceValue' onChange={this.getMetaContent} />
                         </div>
 
                         <div className="title">
-                            <label>Reference value text:</label>
+                            <label title="Text appearing alongside the reference value. Appears in the legend only.">Reference value text:</label>
                             <input value={this.props.metaReferenceValueText} id='metaReferenceValueText' onChange={this.getMetaContent} />
                         </div>
 
 
                         <div className="title">
-                            <label>Value prefix:</label>
+                            <label title="Text displayed before the value for each region (and in the legend title). E.g. '£'">Value prefix:</label>
                             <input value={this.props.metaValuePrefix} id='metaValuePrefix' onChange={this.getMetaContent} />
                         </div>
 
                         <div className="title">
-                            <label>Value suffix:</label>
+                            <label title="Text displayed after the value for each region (and in the legend title). E.g. 'per household'">Value suffix:</label>
                             <input value={this.props.metaValueSuffix} id='metaValueSuffix' onChange={this.getMetaContent} />
                         </div>
 
@@ -372,7 +372,7 @@ class MetaData extends Component {
 
                     <div id='metaTheme-panel' className={this.props.currentActiveTab==='themeData' ? 'show metapanel': 'hide'}>
                        
-                        <label>Breaks:</label>
+                        <label title="The number of colours to display on the map. Note that you can't currently select 2 classes.">Number of classes/colours:</label>
                         <div className="select-wrap">
                             <select id="selectedColBreaksIndex" value={this.props.selectedColBreaksIndex}  onChange={this.onSelectBreakChange}>
                                 <option key="-1" value="-1">select</option>
@@ -388,7 +388,7 @@ class MetaData extends Component {
                         </div>   
 
 
-                        <label>Color:</label>
+                        <label title="The colour gradients to display on the map">Colours:</label>
                         <div className="select-wrap">
                             <select id="selectedColBrewer" value={this.props.selectedColBrewer} onChange={this.onSelectColorBrewerChange}>
                                 <option key="" value="">select colours</option>
@@ -415,7 +415,7 @@ class MetaData extends Component {
                         </div>
 
                         <div className="title">
-                            <label>Upper bound text:</label>
+                            <label title="(Optional) the value to display at the top of the legend. Use this if, e.g., the maximum value in the data is 54.99 and you'd rather the legend said '55').">Upper bound text:</label>
                             <input value={this.props.metaUpperbound} id='metaUpperbound' onChange={this.getMetaContent} />
                         </div>
 
