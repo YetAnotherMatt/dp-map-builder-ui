@@ -105,7 +105,6 @@ class MapContainer extends Component {
                 resolve();
             })
                 .catch((e)=> {
-                    console.log('getTopoJsonBoundaryList error',e);
                     this.onError("No (or error) response from endpoint");
                 })
           
@@ -156,10 +155,10 @@ class MapContainer extends Component {
             metaReferenceValueText:rebuildData.requestJson.choropleth.reference_value_text,
             metaValuePrefix: rebuildData.requestJson.choropleth.value_prefix,
             metaValueSuffix: rebuildData.requestJson.choropleth.value_suffix,
-            metaUpperbound:rebuildData.requestJson.choropleth.upper_bound
+            metaUpperbound:rebuildData.requestJson.choropleth.upper_bound,
+            filename:rebuildData.requestJson.filename
         })
 
-       
     }
 
 
@@ -218,7 +217,6 @@ class MapContainer extends Component {
 
 
     onPreviewMap() {
-        console.log('preview map clicked');
         const prom =  this.submitToRequestRender(this.buildRequestJson());
         prom.then(() => {   
             this.setDataDirty(false); 
@@ -256,7 +254,8 @@ class MapContainer extends Component {
         renderObj.map_type = "choropleth";
         renderObj.licence = this.state.metaLicence
         renderObj.footnotes = this.addFootNotes();
-       
+        renderObj.filename = this.state.filename;
+
 
         // geography
         //renderObj.geography = this.state.geography;
@@ -273,7 +272,7 @@ class MapContainer extends Component {
         }
 
         renderObj.choropleth = {
-            "reference_value": parseFloat(this.state.metaReferenceValue) || 0,
+            "reference_value": parseFloat(this.state.metaReferenceValue) || null,
             "reference_value_text": this.state.metaReferenceValueText,
             "breaks": this.state.rgbBreakVals,
             "missing_value_color": "LightGrey",
@@ -281,7 +280,7 @@ class MapContainer extends Component {
             "value_suffix": this.state.metaValueSuffix,
             "horizontal_legend_position": "before", // this.state.metaHLegendpos,
             "vertical_legend_position":"after", // this.state.metaVLegendpos
-            "upper_bound": parseFloat(this.state.metaUpperbound) || 0
+            "upper_bound": parseFloat(this.state.metaUpperbound) || null
         }
        
 
@@ -316,7 +315,6 @@ class MapContainer extends Component {
         analyseObj.id_index =  parseInt(this.state.metaCsvKeysId) || 0;
         analyseObj.value_index =parseInt(this.state.metaCsvKeysVal) || 0;
         analyseObj.has_header_row = true;
-        //console.log(analyseObj);
         this.setState({geography:analyseObj.geography});
         return analyseObj;
     }
@@ -343,7 +341,6 @@ class MapContainer extends Component {
                 resolve(rawJson);
             })
                 .catch((e)=> {
-                    console.log('getRawTopoJsonData error',e);
                     this.onError("No (or error) response from endpoint");
                 
                 })
@@ -356,7 +353,6 @@ class MapContainer extends Component {
             const uri = this.state.rendererUri + '/analyse'
             const prm = DataService.analyzeMapRender(anaData,uri);
             prm.then((result) => {   
-                //console.log(result)
                 this.setState({
                     "analyzeRenderResponse":result, 
                     analyzeRenderMessages: result.messages,
@@ -379,12 +375,9 @@ class MapContainer extends Component {
 
     submitToRequestRender(reqData) {
         return new Promise((resolve) => {
-            console.log('submitToRequestRender');
-            console.log(reqData)
             const uri = this.state.rendererUri + '/render/svg'
             const prm = DataService.requestMapRender(reqData,uri);
             prm.then((result) => {   
-                //console.log(result)
                 this.setState({
                     previewHtml: result
                 })

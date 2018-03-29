@@ -87,9 +87,7 @@ class MetaData extends Component {
         const newVal = event.target.value
         const index = event.target.attributes.getNamedItem('data-tag').value;
         let tempArr = this.props.rgbBreakVals;
-        console.log(newVal);
         tempArr[index].lower_bound=newVal;
-        //console.log(tempArr[index]);
         this.props.setMetaData({rgbBreakVals:tempArr});
     }
 
@@ -148,7 +146,6 @@ class MetaData extends Component {
     onFileSelect(e) {
         const fls = e.target.files[0];
         if (fls) {
-            //console.log(fls);
             this.props.setMetaData({"file":fls.name});
             const reader = new FileReader();
             reader.onload = ()=>{

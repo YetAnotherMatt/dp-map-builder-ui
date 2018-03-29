@@ -11,21 +11,9 @@ configure({ adapter: new Adapter() });
 describe('Meta Data form', () => {
     
     let wrapper;
-    let mapcontainerWrapper;
     beforeEach(() => {
         wrapper = shallow(<MetaData   />);
-        mapcontainerWrapper = shallow(<MapContainer />);
-        console.log(wrapper);
     });
-
-
-    // it('should render correctly', () => {
-    //     const output = shallow(
-    //         <MetaData title="mockTitle" url="mockUrl" />
-    //     );
-  
-    // });
-
 
   
 
