@@ -28,4 +28,4 @@ Make sure you have the latest Stable or LTS version of Node.js installed.
   - width: The map width at which the visibility of the legends switches from horizontal to vertical. 400.
   - min_width & max_width: The minimum and maximum sizes of the map - it is responsive within these limits. 300 - 500.
   - The ID and Name properties used in the topology files. These are AREACD and AREANM respectively - and this holds true for all topologies currently in the repository.
-
+- The colour options for the map are those published at [colorbrewer2.org](http://colorbrewer2.org/), filtered to remove those that are not colour-blind safe. They have been renamed to give them slightly more descriptive names in the drop down. 
