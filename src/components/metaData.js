@@ -173,7 +173,25 @@ class MetaData extends Component {
 
 
 
-   
+    renderColoursDropdown() {
+        let list = [];
+    
+        for (var group in this.props.colBrewerGroups) {
+            console.log(group)
+            let opt = []
+            for (var key in this.props.colBrewerResource) {
+                let colour = this.props.colBrewerResource[key]
+                let name = colour.name ? colour.name : key
+                if (colour.type == group) {
+                    opt.push(<option key={key}>{name}</option>)
+                }
+            }
+            console.log(opt)
+            list.push(<optgroup key={group} label={this.props.colBrewerGroups[group]}>{opt}</optgroup>);
+        }
+    
+        return list;
+    }   
 
 
   
@@ -373,13 +391,8 @@ class MetaData extends Component {
                         <label>Color:</label>
                         <div className="select-wrap">
                             <select id="selectedColBrewer" value={this.props.selectedColBrewer} onChange={this.onSelectColorBrewerChange}>
-                                <option key="-1" value="-1">select col</option>
-                                {
-                                    this.props.colBrewerNames.map(function(b,index) {
-                                        return <option key={index}
-                                            value={b}>{b}</option>;
-                                    })
-                                }
+                                <option key="" value="">select colours</option>
+                                {this.renderColoursDropdown()}
 
                             </select>
 
@@ -447,7 +460,8 @@ MetaData.propTypes = {
     metaLicence:PropTypes.string,
     selectTopoJson:PropTypes.string,
     metaUpperbound:PropTypes.string,
-    colBrewerNames:PropTypes.array,
+    colBrewerNames:PropTypes.object,
+    colBrewerGroups:PropTypes.object,
     csvKeyData:PropTypes.array,
     metaCsvKeysId:PropTypes.string,
     metaCsvKeysVal:PropTypes.string,
@@ -468,7 +482,8 @@ MetaData.defaultProps = {
     topoJson: [],
     csvKeyData:[],
     colBreaks:[],
-    colBrewerNames:[],
+    colBrewerNames:{},
+    colBrewerGroups:{seq: "Sequential", div: "Diverging", qual: "Qualitative"},
     rgbBreakVals:[]
    
 };

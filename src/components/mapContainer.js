@@ -26,11 +26,6 @@ class MapContainer extends Component {
 
         
 
-        let colBrewerNames = [];
-        for (var key in colBrewer) {
-            colBrewerNames.push(key)
-        }
-
         this.state = {
             view: 'editTable',
             rendererUri: props.rendererUri ? props.rendererUri : defaultRendererUri,
@@ -59,7 +54,6 @@ class MapContainer extends Component {
             selectedColBreaksIndex:-1,
             best_fit_class_count:-1,
             geography:{},
-            colBrewerNames:colBrewerNames,
             colBrewerResource:colBrewer,
             selectedColBrewer:'',
             rgbBreakVals:[]
