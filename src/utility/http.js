@@ -39,7 +39,6 @@ export default class http {
      * @returns {Promise} which returns the response body in JSON format
      */
     static post(uri, body ,willRetry, callerHandles401,responseFormat) {
-        console.log('>>>>>>>>>>>>>will retry', willRetry )
         return request("POST", uri, willRetry, undefined, body, callerHandles401,responseFormat)
 
     }
