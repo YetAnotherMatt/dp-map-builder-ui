@@ -298,7 +298,8 @@ class MetaData extends Component {
                   
                     <div  id='metaCsvData-panel' className={this.props.currentActiveTab==='uploadData' ? 'show metapanel': 'hide'} >
                         <div className="sizeUnits2">
-                            <label title="The Topojson file defining the map to display">Topology:</label>
+                            <label title="The Topojson file defining the map to display">Topology:</label>&nbsp;
+                            <span style={{fontSize: "75%"}}>(View the maps in the <a href="https://github.com/ONSvisual/topojson_boundaries" target="_blank" rel="noopener noreferrer">ONSvisual repository</a>)</span>
                             <div className="select-wrap">
                                 <select id="selectTopoJson" value={this.props.selectTopoJson} onChange={this.getMetaContent}>
                                     <option key="-1" value="none">select</option>
