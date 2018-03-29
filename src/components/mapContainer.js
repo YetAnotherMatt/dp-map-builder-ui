@@ -150,6 +150,15 @@ class MapContainer extends Component {
         })
 
 
+
+        this.setState({
+            metaReferenceValue:rebuildData.requestJson.choropleth.reference_value,
+            metaReferenceValueText:rebuildData.requestJson.choropleth.reference_value_text,
+            metaValuePrefix: rebuildData.requestJson.choropleth.value_prefix,
+            metaValueSuffix: rebuildData.requestJson.choropleth.value_suffix,
+            metaUpperbound:rebuildData.requestJson.choropleth.upper_bound
+        })
+
        
     }
 
@@ -245,7 +254,7 @@ class MapContainer extends Component {
         renderObj.min_width =300;
         renderObj.max_width = 500;
         renderObj.map_type = "choropleth";
-        renderObj.licence = this.state.metaLicense
+        renderObj.licence = this.state.metaLicence
         renderObj.footnotes = this.addFootNotes();
        
 
@@ -478,7 +487,11 @@ class MapContainer extends Component {
                         metaCsvKeysVal = {this.state.metaCsvKeysVal}
                         metaCsvKeysId = {this.state.metaCsvKeysId}
                         onError = {this.onError}
-
+                        metaReferenceValue = {this.state.metaReferenceValue}
+                        metaReferenceValueText = {this.state.metaReferenceValueText}
+                        metaValuePrefix = {this.state.metaValuePrefix}
+                        metaValueSuffix = {this.state.metaValueSuffix}
+                        metaUpperbound = {this.state.metaUpperbound}
                      
                     />
                     <div className="grid"> 
