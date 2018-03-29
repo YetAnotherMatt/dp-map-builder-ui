@@ -258,16 +258,21 @@ class MapContainer extends Component {
         }
 
         renderObj.data = this.state.analyzeRenderResponse.data;
+        
+        for (let b of this.state.rgbBreakVals) {
+            b.lower_bound = parseFloat(b.lower_bound)
+        }
 
         renderObj.choropleth = {
-            "reference_value": parseInt(this.state.metaReferenceValue) || 0,
+            "reference_value": parseFloat(this.state.metaReferenceValue) || 0,
             "reference_value_text": this.state.metaReferenceValueText,
             "breaks": this.state.rgbBreakVals,
             "missing_value_color": "LightGrey",
             "value_prefix": this.state.metaValuePrefix,
             "value_suffix": this.state.metaValueSuffix,
             "horizontal_legend_position": "before", // this.state.metaHLegendpos,
-            "vertical_legend_position":"after" // this.state.metaVLegendpos
+            "vertical_legend_position":"after", // this.state.metaVLegendpos
+            "upper_bound": parseFloat(this.state.metaUpperbound) || 0
         }
        
 
@@ -276,14 +281,14 @@ class MapContainer extends Component {
         renderObj.selectedColorScheme=this.state.selectedColBrewer;
         renderObj.topology_filename =this.state.selectTopoJson;
         
-        renderObj.metaCsvkeysValtxt = this.state.metaCsvkeysValtxt;
-        renderObj.metaCsvkeysIdtxt = this.state.metaCsvkeysIdtxt;
+        renderObj.metaCsvkeysValtxt = this.state.metaCsvKeysValtxt;
+        renderObj.metaCsvkeysIdtxt = this.state.metaCsvKeysIdtxt;
 
-        renderObj.metaCsvkeysVal = this.state.metaCsvkeysVal;
-        renderObj.metaCsvkeysId = this.state.metaCsvkeysId;
+        renderObj.metaCsvkeysVal = this.state.metaCsvKeysVal;
+        renderObj.metaCsvkeysId = this.state.metaCsvKeysId;
 
 
-        renderObj.metaUpperbound = this.state.metaUpperbound;
+       
       
 
         return renderObj;
@@ -365,6 +370,7 @@ class MapContainer extends Component {
 
     submitToRequestRender(reqData) {
         return new Promise((resolve) => {
+            console.log('submitToRequestRender');
             console.log(reqData)
             const uri = this.state.rendererUri + '/render/svg'
             const prm = DataService.requestMapRender(reqData,uri);

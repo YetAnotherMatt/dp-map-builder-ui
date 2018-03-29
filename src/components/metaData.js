@@ -21,8 +21,8 @@ class MetaData extends Component {
         this.onFileSelect = this.onFileSelect.bind(this);
         this.onChangeTab = this.onChangeTab.bind(this);
         this.onSelectColorBrewerChange = this.onSelectColorBrewerChange.bind(this);
-        this.onSelectBreakChange = this. onSelectBreakChange.bind(this);
-
+        this.onSelectBreakChange = this.onSelectBreakChange.bind(this);
+        this.setBreakVal = this.setBreakVal.bind(this);
        
     }
 
@@ -58,8 +58,7 @@ class MetaData extends Component {
         obj[key] = val;
         obj["isDirty"]=true;
         this.props.setMetaData(obj);
-
-
+       
         //we need both val and text props for selected option
         //id_index, value_index
         if (key==="metaCsvKeysId" || key==="metaCsvKeysVal")
@@ -73,6 +72,7 @@ class MetaData extends Component {
         }
 
 
+        // keep both  metaNotes fields in synch
         if (key ==='metaNotesExp') {
             this.props.setMetaData({metaNotes:val});
         }
@@ -83,7 +83,15 @@ class MetaData extends Component {
     }
 
 
-    
+    setBreakVal(event) {
+        const newVal = event.target.value
+        const index = event.target.attributes.getNamedItem('data-tag').value;
+        let tempArr = this.props.rgbBreakVals;
+        console.log(newVal);
+        tempArr[index].lower_bound=newVal;
+        //console.log(tempArr[index]);
+        this.props.setMetaData({rgbBreakVals:tempArr});
+    }
 
     onSelectBreakChange(e) {
         this.getMetaContent(e);
@@ -166,10 +174,11 @@ class MetaData extends Component {
 
         let firstLine = data.split('\n').shift(); // first line 
         let colHeaders = firstLine.split(',');
+        //this.setState({csvKeyData:colHeaders})
         this.props.setMetaData({"csvKeyData":colHeaders});
         // pre-select AREACD as the id column if it is present and no column is yet selected
         if (!this.props.metaCsvKeysId && colHeaders.includes("AREACD")) {
-            this.props.setMetaData({"metaCsvKeysIdtxt": "AREACD", "metaCsvKeysId": colHeaders.findIndex(x => x=="AREACD")})
+            this.props.setMetaData({"metaCsvKeysIdtxt": "AREACD", "metaCsvKeysId": colHeaders.findIndex(x => x=="AREACD").toString()})
         }
     }
 
@@ -311,7 +320,6 @@ class MetaData extends Component {
                         </div>
 
                         <div id="metaCsvKeysGroup" className={(this.props.csvKeyData).length===0 ? 'show': 'show'}>
-
                             <div className="sizeUnits2">
                                
                                 <label title="The column that contains the id of the region. Values should match the ID of regions in the chosen topology.">Id Column:</label>
@@ -324,12 +332,13 @@ class MetaData extends Component {
                                                     value={index}>{b}</option>;
                                             })
                                         }
-                                    </select>                  
+                                    </select>
                                 </div>
                             </div>
+
                             <div className="sizeUnits2">
                                 <label title="The column that contains the value used to give the region a colour. Must contain numeric values.">Value Column:</label>
-                                <div className= " select-wrap">
+                                <div className="select-wrap">
                                     <select id="metaCsvKeysVal" value={this.props.metaCsvKeysVal} onChange={this.getMetaContent}>
                                         <option key="-1" value="none">select</option>
                                         {
@@ -346,7 +355,7 @@ class MetaData extends Component {
 
                         <div className="title">
                             <label title="A value against which other values should be compared - e.g. an average for the nation. Appears in the legend only.">Reference value:</label>
-                            <input value={this.props.metaReferenceValue} id='metaReferenceValue' onChange={this.getMetaContent} />
+                            <input type="number" value={this.props.metaReferenceValue} id='metaReferenceValue' onChange={this.getMetaContent} />
                         </div>
 
                         <div className="title">
@@ -406,7 +415,7 @@ class MetaData extends Component {
                                     let styles = {backgroundColor:`${b.color}`}
                                     return(
                                         <div key={index}>
-                                            <input readOnly value={b.lower_bound} className="smltxt"  id='metaTitle'  />&nbsp;
+                                            <input type="number" value={b.lower_bound} className="smltxt" id="breakVal" data-tag={index} onChange={this.setBreakVal} />&nbsp;
                                             <input readOnly value={b.color} className="smltxt"  id='breakRGB' style={styles} /> 
                                         </div>)
                                 })
@@ -416,7 +425,7 @@ class MetaData extends Component {
 
                         <div className="title">
                             <label title="(Optional) the value to display at the top of the legend. Use this if, e.g., the maximum value in the data is 54.99 and you'd rather the legend said '55').">Upper bound:</label>
-                            <input value={this.props.metaUpperbound} id='metaUpperbound' onChange={this.getMetaContent} />
+                            <input type="number" className="smltxt" value={this.props.metaUpperbound} id='metaUpperbound' onChange={this.getMetaContent} />
                         </div>
 
                      
@@ -441,11 +450,7 @@ class MetaData extends Component {
 MetaData.propTypes = {
     metaTitle: PropTypes.string,
     metaSubtitle: PropTypes.string,
-    metaUnits: PropTypes.string,
     metaSource: PropTypes.string,
-    metaSizeunits: PropTypes.string,
-    metaHeadercols: PropTypes.number,
-    metaHeaderrows: PropTypes.number,
     metaNotes: PropTypes.string,
     metaNotesExp: PropTypes.string,
     setMetaData:PropTypes.func,
