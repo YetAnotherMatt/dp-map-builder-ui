@@ -415,7 +415,7 @@ class MetaData extends Component {
                         </div>
 
                         <div className="title">
-                            <label title="(Optional) the value to display at the top of the legend. Use this if, e.g., the maximum value in the data is 54.99 and you'd rather the legend said '55').">Upper bound text:</label>
+                            <label title="(Optional) the value to display at the top of the legend. Use this if, e.g., the maximum value in the data is 54.99 and you'd rather the legend said '55').">Upper bound:</label>
                             <input value={this.props.metaUpperbound} id='metaUpperbound' onChange={this.getMetaContent} />
                         </div>
 
