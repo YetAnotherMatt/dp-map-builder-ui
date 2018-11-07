@@ -288,6 +288,30 @@ class MetaData extends Component {
                            
                         </div>
 
+                        <div className="sizeUnits2">
+                            <label title="The location of the horizontal legend">Horizontal Legend:</label>
+                            <div className="select-wrap">
+                                <select id="metaHLegendpos" value={this.props.metaHLegendpos} onChange={this.getMetaContent}>
+                                    <option key="0" value="none">none</option>
+                                    <option key="1" value="before">before</option>
+                                    <option key="2" value="after">after</option>
+                                        
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="sizeUnits2">
+                            <label title="The location of the vertical legend">Vertical Legend:</label>
+                            <div className="select-wrap">
+                                <select id="metaVLegendpos" value={this.props.metaVLegendpos} onChange={this.getMetaContent}>
+                                    <option key="0" value="none">none</option>
+                                    <option key="1" value="before">before</option>
+                                    <option key="2" value="after">after</option>
+                                        
+                                </select>
+                            </div>
+                        </div>
+
 
                     </div>
 
@@ -371,7 +395,6 @@ class MetaData extends Component {
                             <label title="Text displayed after the value for each region (and in the legend title). E.g. 'per household'">Value suffix:</label>
                             <input value={this.props.metaValueSuffix} id='metaValueSuffix' onChange={this.getMetaContent} />
                         </div>
-
 
                     </div>
 
@@ -477,6 +500,8 @@ MetaData.propTypes = {
     metaReferenceValueText:PropTypes.string,
     metaValuePrefix:PropTypes.string,
     metaValueSuffix:PropTypes.string,
+    metaHLegendpos:PropTypes.string,
+    metaVLegendpos:PropTypes.string,
     onError:PropTypes.func
 };
 

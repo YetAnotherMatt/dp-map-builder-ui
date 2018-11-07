@@ -39,6 +39,8 @@ class MapContainer extends Component {
             metaNotesExp: '',
             metaLicence:'',
             metaMapwidth:400,
+            metaHLegendpos: 'before',
+            metaVLegendpos: 'none',
             isDirty:false,
             metaFormHide:false,
             file:{},
@@ -223,6 +225,51 @@ class MapContainer extends Component {
         })
     }
 
+    onSaveMap() {
+        const MIME_TYPE = 'text/html';
+        var preview = document.querySelector('div.previewhtml');
+        var output = document.querySelector('#downloadoutput');
+
+        window.URL = window.webkitURL || window.URL;
+
+        var prevLink = output.querySelector('a');
+        if (prevLink) {
+            window.URL.revokeObjectURL(prevLink.href);
+            output.innerHTML = '';
+        }
+      
+        var bb = new Blob(["<html><body>" + preview.innerHTML + "</body></html>"], {type: MIME_TYPE});
+      
+        var a = document.createElement('a');
+        a.download = document.querySelector('#metaTitle').value + ".html";
+        a.href = window.URL.createObjectURL(bb);
+        a.textContent = 'Download ready';
+      
+        a.dataset.downloadurl = [MIME_TYPE, a.download, a.href].join(':');
+        a.draggable = true; // Don't really need, but good practice.
+        a.classList.add('dragout');
+      
+        output.appendChild(a);
+
+        var cleanUp = function(a) {
+            a.textContent = 'Downloaded';
+            a.dataset.disabled = true;
+          
+            // Need a small delay for the revokeObjectURL to work properly.
+            setTimeout(function() {
+                window.URL.revokeObjectURL(a.href);
+            }, 1500);
+        };
+               
+        a.onclick = function() {
+            if ('disabled' in this.dataset) {
+                return false;
+            }
+      
+            cleanUp(this);
+        };       
+    }
+
 
 
     onAnalyze() {
@@ -278,8 +325,8 @@ class MapContainer extends Component {
             "missing_value_color": "LightGrey",
             "value_prefix": this.state.metaValuePrefix,
             "value_suffix": this.state.metaValueSuffix,
-            "horizontal_legend_position": "before", // this.state.metaHLegendpos,
-            "vertical_legend_position":"after", // this.state.metaVLegendpos
+            "horizontal_legend_position": this.state.metaHLegendpos, // "before", 
+            "vertical_legend_position": this.state.metaVLegendpos, // "after",
             "upper_bound": parseFloat(this.state.metaUpperbound) || null
         }
        
@@ -485,6 +532,8 @@ class MapContainer extends Component {
                         metaValuePrefix = {this.state.metaValuePrefix}
                         metaValueSuffix = {this.state.metaValueSuffix}
                         metaUpperbound = {this.state.metaUpperbound}
+                        metaHLegendpos = {this.state.metaHLegendpos}
+                        metaVLegendpos = {this.state.metaVLegendpos}
                      
                     />
                     <div className="grid"> 
@@ -503,9 +552,10 @@ class MapContainer extends Component {
                         <button onClick={this.cancel}>cancel</button> &nbsp;
                         <button className={this.state.currentActiveTab === 'uploadData'? "showBtn": "hideBtn"} onClick={this.onAnalyze}>analyse request</button> &nbsp;
                         <button className={this.state.currentActiveTab === 'themeData'? "showBtn": "hideBtn"} onClick={this.onPreviewMap}>preview map</button> &nbsp;
+                        <button className={this.state.currentActiveTab === 'themeData'? "showBtn": "hideBtn"} onClick={this.onSaveMap} title='Saves the content of the preview'>save map</button> &nbsp;
                         <button className={this.state.view === 'editTable'? "hideBtn": "showBtn"} onClick={this.onBackFromPreview}>back</button> &nbsp;
-                       
                     </div>
+                    <output id='downloadoutput'></output>
                 </div>
             </div>
         );
